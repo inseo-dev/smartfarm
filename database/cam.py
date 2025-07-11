@@ -1,3 +1,48 @@
+import cv2
+import boto3
+from datetime import datetime
+import os
+
+# ====== 사용자 입력 ======
+# RTSP 정보
+username = 'spreatics'
+password = 'smartfarm'
+ip_address = '192.168.1.184'
+rtsp_url = f'rtsp://{username}:{password}@{ip_address}:554/stream1'
+
+# AWS S3 정보
+aws_access_key_id = 'YOUR_ACCESS_KEY'
+aws_secret_access_key = 'YOUR_SECRET_KEY'
+bucket_name = 'my-camera-images'
+
+# ====== 프레임 캡처 ======
+cap = cv2.VideoCapture(rtsp_url)
+ret, frame = cap.read()
+
+if ret:
+    # 타임스탬프 파일명 생성
+    filename = f"frame_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+    cv2.imwrite(filename, frame)
+    print(f"이미지 저장 완료: {filename}")
+
+    # S3 업로드
+    s3 = boto3.client(
+        's3',
+        aws_access_key_id=aws_access_key_id,
+        aws_secret_access_key=aws_secret_access_key
+    )
+
+    s3.upload_file(filename, bucket_name, filename)
+    print(f"S3 업로드 성공: {bucket_name}/{filename}")
+
+    # 로컬 파일 삭제 원하면 아래 주석 해제
+    # os.remove(filename)
+else:
+    print("카메라 연결 실패 또는 프레임 캡처 실패")
+
+cap.release()
+
+
 # import cv2
 # import boto3
 # import datetime
@@ -46,26 +91,26 @@
 #     time.sleep(600)  # 600초 = 10분
 
 
-import cv2
+# import cv2
 
-# === 사용자 정보 입력 ===
-username = 'spreatics'           # 설정한 사용자명
-password = 'smartfarm'       # 설정한 비밀번호
-ip_address = '192.168.1.184'     # 카메라 IP (정적 IP로 설정한 값)
+# # === 사용자 정보 입력 ===
+# username = 'spreatics'           # 설정한 사용자명
+# password = 'smartfarm'       # 설정한 비밀번호
+# ip_address = '192.168.1.184'     # 카메라 IP (정적 IP로 설정한 값)
 
-# === RTSP 스트림 URL 구성 ===
-rtsp_url = f'rtsp://{username}:{password}@{ip_address}:554/stream1'
+# # === RTSP 스트림 URL 구성 ===
+# rtsp_url = f'rtsp://{username}:{password}@{ip_address}:554/stream1'
 
-# === 카메라 연결 ===
-cap = cv2.VideoCapture(rtsp_url)
+# # === 카메라 연결 ===
+# cap = cv2.VideoCapture(rtsp_url)
 
-# === 연결 확인 및 프레임 캡처 ===
-ret, frame = cap.read()
+# # === 연결 확인 및 프레임 캡처 ===
+# ret, frame = cap.read()
 
-if ret:
-    cv2.imwrite('snapshot.jpg', frame)
-    print('✅ 프레임 캡처 성공! → snapshot.jpg 로 저장됨')
-else:
-    print('❌ 스트림 연결 실패 또는 프레임 수신 실패')
+# if ret:
+#     cv2.imwrite('snapshot.jpg', frame)
+#     print('프레임 캡처 성공 → snapshot.jpg 로 저장됨')
+# else:
+#     print('스트림 연결 실패 또는 프레임 수신 실패')
 
-cap.release()
+# cap.release()
