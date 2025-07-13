@@ -69,6 +69,11 @@ def sensor_data_input():
     
     return jsonify({"result": "Success", "device_id": dumi_device_id, "timestamp": dumi_timestamp, "sensor_type": dumi_sensor_type, "sensor_value": dumi_sensor_value})
 
+# 프론트엔드로 Status 값 보내기
+@app.route('/sensor_data')
+def get_sensor_data():
+    return jsonify({"result": "sended", "device_id": dumi_device_id, "timestamp": dumi_timestamp, "sensor_type": dumi_sensor_type, "sensor_value": dumi_sensor_value})
+
 # GET_Setting(아두이노로 환경변수 설정값 보내기)
 @app.route('/control_settings')
 def arduino_get_settings():
