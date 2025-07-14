@@ -72,7 +72,44 @@ def sensor_data_input():
 # 프론트엔드로 Status 값 보내기
 @app.route('/sensor_data')
 def get_sensor_data():
-    return jsonify({"result": "sended", "device_id": dumi_device_id, "timestamp": dumi_timestamp, "sensor_type": dumi_sensor_type, "sensor_value": dumi_sensor_value})
+    return jsonify({"result": "sended",
+                    "data": {
+                        "temp": {
+                            "2025-07-09 10:00:00" : 25,
+			                "2025-07-09 10:00:01" : 25.5
+                        },
+                        "humidity": {
+                            "2025-07-09 10:00:00" : 54,
+			                "2025-07-09 10:00:01" : 57
+                        },
+                        "light_intensity": {
+                            "2025-07-09 10:00:00" : 1200,
+			                "2025-07-09 10:00:01" : 1200
+                        },
+                        "soil_moisture": {
+                            "2025-07-09 10:00:00" : 97,
+			                "2025-07-09 10:00:01" : 98
+                        }
+                    }
+                })
+
+# 프론트엔드로 AI 정보 테이블 보내기
+@app.route('/ai_diagnosis')
+def get_ai_info():
+    return jsonify({"result": "selected", 
+                    "diagnosis_id": 1,
+                	"plant_name": "Basil",
+                	"timestamp": "2025-07-10T11:30:00+09:00",
+	                "result": "잎에 곰팡이 감염 흔적 있음",
+	                "recommendations": "습도 낮추기, 약제 처리",
+	                "controls": {
+                        "temp": {"from": 24, "to": 27},
+                        "humidity": {"from": 40, "to": 45 }, 
+                        "light_time": "10~14",
+                        "light_intensity": {"from": 8000, "to": 10000},
+                        "soil_moisture": {"from": 30, "to": 40}
+                        },
+	                "image_url": "https://example.com/1.jpg"})
 
 # GET_Setting(아두이노로 환경변수 설정값 보내기)
 @app.route('/control_settings')
