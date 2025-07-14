@@ -105,7 +105,7 @@ def get_ai_info():
 	                "controls": {
                         "temp": {"from": 24, "to": 27},
                         "humidity": {"from": 40, "to": 45 }, 
-                        "light_time": "10~14",
+                        "light_time": {"from": 10, "to": 14},
                         "light_intensity": {"from": 8000, "to": 10000},
                         "soil_moisture": {"from": 30, "to": 40}
                         },
