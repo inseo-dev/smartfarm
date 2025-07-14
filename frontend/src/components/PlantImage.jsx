@@ -1,6 +1,6 @@
 function PlantImage() {
   return (
-    <div className="text-left">
+    <div className="flex flex-col items-center text-center">
       <img
         src="https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcQqG8vMAi185miSPAq-hGkFPQTWFWUpa5vJ1bOdTfh8gdsaTgb6BHUHA4otXHZKq48fXlGdSsPpXsorb-ZzrldnXg"
         alt="작물"
