@@ -15,35 +15,23 @@ from flask_cors import CORS
 
 # def get_connection():
 #     return pymysql.connect(
-#         host=
-#         user=
-#         password=
-#         db=
-#         charset='utf8mb4',
+#         host="database-1.cts2qeeg0ot5.ap-northeast-2.rds.amazonaws.com",
+#         user="kevin",
+#         db="smartfarm",
+#         password="spreatics*",
+#         charset="utf8mb4",
 #         cursorclass=pymysql.cursors.DictCursor
 #     )
 
-# get settings용 변수
-set_temperature = 24.00
-set_light_intensity = 72.00
-set_humidity = 55.00
-set_soil_moisture = 123.00
-set_start_light = "2025-07-10T13:30:00+09:00"
-set_end_light = "2025-07-10T18:30:00+09:00"
-
-# 아두이노 -> DB POST 용 변수
-dumi_device_id = 128
-dumi_timestamp = "24시간"
-dumi_sensor_type = "ice"
-dumi_sensor_value = 752.00
-
-# 프론트엔드 -> DB POST 용 변수
-dumi_set_temperature = 350
-dumi_set_light_intensity = 270
-dumi_set_humidity = 485.00
-dumi_set_soil_moisture = 27.08
-dumi_set_start_light = "dayday"
-dumi_set_end_light = "daybyday "
+def get_connection():
+    return pymysql.connect(
+        host='localhost',
+        user='root',
+        db='test_smartfarm',
+        password='gmdtm457^^',
+        charset='utf8mb4',
+        cursorclass=pymysql.cursors.DictCursor
+    )
 
 app = Flask(__name__)
 # 프론트엔드 모든 요청 허용
@@ -54,24 +42,39 @@ CORS(app)
 def sensor_data_input():
     data = request.get_json()
 
-    global dumi_device_id
-    global dumi_timestamp
-    global dumi_sensor_type
-    global dumi_sensor_value
+    device_id = data['device_id']
+    sensor_data = data['sensor_data']
 
-    dumi_device_id = data['device_id']
-    dumi_timestamp = data['timestamp']
-    dumi_sensor_type = data['sensor_type']
-    dumi_sensor_value = data['sensor_value']
-
-    if((dumi_device_id is None) or (dumi_timestamp is None) or (dumi_sensor_type is None)):
+    if((device_id is None) or (sensor_data is None)):
         return jsonify({"result": "failed", "reason": "There are no required fields."})
     
-    return jsonify({"result": "Success", "device_id": dumi_device_id, "timestamp": dumi_timestamp, "sensor_type": dumi_sensor_type, "sensor_value": dumi_sensor_value})
+    conn = get_connection()
+
+    for i, j in sensor_data.items():
+        with conn.cursor() as cursor:
+            sql = """insert into sensor_data(device_id, sensor_type, sensor_value) 
+                    values(%s, %s, %s);"""
+            cursor.execute(sql, (device_id, i, j))
+            conn.commit()
+
+    with conn.cursor() as cursor:
+        sql = """select timestamp
+                 from sensor_data
+                 order by timestamp desc
+                 limit 1;"""
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+
+        return jsonify({"result": "Success", "timestamp": rows[0]['timestamp']})
 
 # 프론트엔드로 Status 값 보내기
 @app.route('/sensor_data')
 def get_sensor_data():
+    conn = get_connection()
+
+    # with conn.cursor() as cursor:
+    #     sql = """"""
+
     return jsonify({"result": "sended",
                     "data": {
                         "temp": {
@@ -96,7 +99,7 @@ def get_sensor_data():
 # 프론트엔드로 AI 정보 테이블 보내기
 @app.route('/ai_diagnosis')
 def get_ai_info():
-    return jsonify({"result": "selected", 
+    return jsonify({
                     "diagnosis_id": 1,
                 	"plant_name": "Basil",
                 	"timestamp": "2025-07-10T11:30:00+09:00",
@@ -114,31 +117,43 @@ def get_ai_info():
 # GET_Setting(아두이노로 환경변수 설정값 보내기)
 @app.route('/control_settings')
 def arduino_get_settings():
-    return jsonify({"result": "sended", "set_temperature": set_temperature, "set_light_intensity": set_light_intensity, "set_humidity": set_humidity, "set_soil_moisture": set_soil_moisture, "set_start_light": set_start_light, "set_end_light": set_end_light})
+    conn = get_connection()
+
+    with conn.cursor() as cursor:
+        sql = """select controls
+                 from ai_diagnosis
+                 order by diagnosis_id desc
+                 limit 1;"""
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+
+        return {"result": "sended", "set_temperature": rows[0]['controls']}
+
+    # return jsonify({"result": "sended", "set_temperature": set_temperature, "set_light_intensity": set_light_intensity, "set_humidity": set_humidity, "set_soil_moisture": set_soil_moisture, "set_start_light": set_start_light, "set_end_light": set_end_light})
 
 # POST_Setting(프론트엔드에서 환경변수 설정값 설정하기)
-@app.route('/control_settings', methods=['POST'])
-def frontend_post_settings():
-    data = request.get_json()
+# @app.route('/control_settings', methods=['POST'])
+# def frontend_post_settings():
+#     data = request.get_json()
     
-    global dumi_set_temperature
-    global dumi_set_light_intensity
-    global dumi_set_humidity
-    global dumi_set_soil_moisture
-    global dumi_set_start_light
-    global dumi_set_end_light
+#     global dumi_set_temperature
+#     global dumi_set_light_intensity
+#     global dumi_set_humidity
+#     global dumi_set_soil_moisture
+#     global dumi_set_start_light
+#     global dumi_set_end_light
 
-    dumi_set_temperature = data['set_temperature']
-    dumi_set_light_intensity = data['set_light_intensity']
-    dumi_set_humidity = data['set_humidity']
-    dumi_set_soil_moisture = data['set_soil_moisture']
-    dumi_set_start_light = data['set_start_light']
-    dumi_set_end_light = data['set_end_light']
+#     dumi_set_temperature = data['set_temperature']
+#     dumi_set_light_intensity = data['set_light_intensity']
+#     dumi_set_humidity = data['set_humidity']
+#     dumi_set_soil_moisture = data['set_soil_moisture']
+#     dumi_set_start_light = data['set_start_light']
+#     dumi_set_end_light = data['set_end_light']
 
-    if((dumi_set_temperature > 70) or (dumi_set_light_intensity > 99) or (dumi_set_humidity > 99) or (dumi_set_soil_moisture > 1023)):
-        return jsonify({"result": "failed", "reason": "The input value is out of range."})
+#     if((dumi_set_temperature > 70) or (dumi_set_light_intensity > 99) or (dumi_set_humidity > 99) or (dumi_set_soil_moisture > 1023)):
+#         return jsonify({"result": "failed", "reason": "The input value is out of range."})
     
-    return jsonify({"result": "Success", "set_temperature": dumi_set_temperature, "set_intensity": dumi_set_light_intensity, "set_humidity": dumi_set_humidity, "set_soil_moisture": dumi_set_soil_moisture, "set_start_light": dumi_set_start_light, "set_end_light": dumi_set_end_light})
+#     return jsonify({"result": "Success", "set_temperature": dumi_set_temperature, "set_intensity": dumi_set_light_intensity, "set_humidity": dumi_set_humidity, "set_soil_moisture": dumi_set_soil_moisture, "set_start_light": dumi_set_start_light, "set_end_light": dumi_set_end_light})
 
 # Flask 서버에서 아두이노로 현재 시간 보내기(조명 제어를 위한)
 @app.route('/time')
