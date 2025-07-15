@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify
 from datetime import datetime, timezone, timedelta
 import pymysql
+import json
 from flask_cors import CORS
 
 # 가정 AI 라이브러리 파일
@@ -13,25 +14,25 @@ from flask_cors import CORS
 #     print(f"AI 모델 로딩 실패: {e}")
 #     ai_instance = None
 
-# def get_connection():
-#     return pymysql.connect(
-#         host="database-1.cts2qeeg0ot5.ap-northeast-2.rds.amazonaws.com",
-#         user="kevin",
-#         db="smartfarm",
-#         password="spreatics*",
-#         charset="utf8mb4",
-#         cursorclass=pymysql.cursors.DictCursor
-#     )
-
 def get_connection():
     return pymysql.connect(
-        host='localhost',
-        user='root',
-        db='test_smartfarm',
-        password='gmdtm457^^',
-        charset='utf8mb4',
+        host="database-1.cts2qeeg0ot5.ap-northeast-2.rds.amazonaws.com",
+        user="kevin",
+        db="smartfarm",
+        password="spreatics*",
+        charset="utf8mb4",
         cursorclass=pymysql.cursors.DictCursor
     )
+
+# def get_connection():
+#     return pymysql.connect(
+#         host='localhost',
+#         user='root',
+#         db='test_smartfarm',
+#         password='gmdtm457^^',
+#         charset='utf8mb4',
+#         cursorclass=pymysql.cursors.DictCursor
+#     )
 
 app = Flask(__name__)
 # 프론트엔드 모든 요청 허용
@@ -72,47 +73,57 @@ def sensor_data_input():
 def get_sensor_data():
     conn = get_connection()
 
-    # with conn.cursor() as cursor:
-    #     sql = """"""
+    temp_dict = {}
+    light_intensity_dict = {}
+    humidity_dict = {}
+    soil_moisture_dict = {}
 
-    return jsonify({"result": "sended",
-                    "data": {
-                        "temp": {
-                            "2025-07-09 10:00:00" : 25,
-			                "2025-07-09 10:00:01" : 25.5
-                        },
-                        "humidity": {
-                            "2025-07-09 10:00:00" : 54,
-			                "2025-07-09 10:00:01" : 57
-                        },
-                        "light_intensity": {
-                            "2025-07-09 10:00:00" : 1200,
-			                "2025-07-09 10:00:01" : 1200
-                        },
-                        "soil_moisture": {
-                            "2025-07-09 10:00:00" : 97,
-			                "2025-07-09 10:00:01" : 98
-                        }
-                    }
-                })
+    dict_list = [temp_dict, light_intensity_dict, humidity_dict, soil_moisture_dict]
+
+    sensor_type = ['temp', 'light_intensity', 'humidity', 'soil_moisture']
+    for i in sensor_type:
+        cnt = 0
+        with conn.cursor() as cursor:
+            sql = """SELECT 
+                        DATE_FORMAT(timestamp, '%%Y-%%m-%%d %%H:%%i:00') AS minute,  -- 타임스탬프를 '분' 단위로 자름
+                        round(AVG(sensor_value), 2) AS avg_value                          -- 해당 분의 평균값 계산
+                    FROM sensor_data
+                    WHERE sensor_type = %s                         -- 센서 타입 필터링
+                        AND timestamp >= NOW() - INTERVAL 1 HOUR                -- 최근 1시간 데이터만 선택
+                    GROUP BY minute                                           -- '분 단위'로 그룹화
+                    ORDER BY minute DESC                                      -- 최근 분부터 정렬
+                    LIMIT 60;"""
+            cursor.execute(sql, (i, ))
+            rows = cursor.fetchall()
+
+            for row in rows:
+                ts = row["minute"]
+                value = row['avg_value']
+                dict_list[cnt][ts] = value
+
+            cnt += 1
+            
+    return { "result": "sended", "data": {"temp": dict_list[0],
+                                            "light_intensity": dict_list[1],
+                                            "humidity": dict_list[2],
+                                            "soil_moisture": dict_list[3]}}
 
 # 프론트엔드로 AI 정보 테이블 보내기
 @app.route('/ai_diagnosis')
 def get_ai_info():
-    return jsonify({
-                    "diagnosis_id": 1,
-                	"plant_name": "Basil",
-                	"timestamp": "2025-07-10T11:30:00+09:00",
-	                "result": "잎에 곰팡이 감염 흔적 있음",
-	                "recommendations": "습도 낮추기, 약제 처리",
-	                "controls": {
-                        "temp": {"from": 24, "to": 27},
-                        "humidity": {"from": 40, "to": 45 }, 
-                        "light_time": {"from": 10, "to": 14},
-                        "light_intensity": {"from": 8000, "to": 10000},
-                        "soil_moisture": {"from": 30, "to": 40}
-                        },
-	                "image_url": "https://example.com/1.jpg"})
+    conn = get_connection()
+
+    with conn.cursor() as cursor:
+        sql = """SELECT * 
+                 FROM ai_diagnosis
+                 ORDER BY timestamp DESC
+                 LIMIT 5;"""
+        cursor.execute(sql)
+        rows = cursor.fetchall()
+
+        # print(rows[0]['diagnosis_id'])
+
+        return jsonify({"diagnosis_id": rows[0]['diagnosis_id'], "plant_name": rows[0]['plant_name'], "timestamp": rows[0]['timestamp'], "result": rows[0]['result'], "recommendations": rows[0]['recommendations'], "controls": rows[0]['controls'], "image_url": rows[0]['image_url']})
 
 # GET_Setting(아두이노로 환경변수 설정값 보내기)
 @app.route('/control_settings')
@@ -127,9 +138,26 @@ def arduino_get_settings():
         cursor.execute(sql)
         rows = cursor.fetchall()
 
-        return {"result": "sended", "set_temperature": rows[0]['controls']}
+        controls_data = json.loads(rows[0]['controls'])
 
-    # return jsonify({"result": "sended", "set_temperature": set_temperature, "set_light_intensity": set_light_intensity, "set_humidity": set_humidity, "set_soil_moisture": set_soil_moisture, "set_start_light": set_start_light, "set_end_light": set_end_light})
+        # temp 평균
+        temp_low = controls_data['temp']['from']
+        temp_high = controls_data['temp']['to']
+        temp_avg = (temp_low + temp_high) / 2
+        # humidity 평균
+        humidity_low = controls_data['humidity']['from']
+        humidity_high = controls_data['humidity']['to']
+        humidity_avg = (humidity_low + humidity_high) / 2
+        # soil_moisture 평균
+        soil_moisture_low = controls_data['soil_moisture']['from']
+        soil_moisture_high = controls_data['soil_moisture']['to']
+        soil_moisture_avg = (soil_moisture_low + soil_moisture_high) / 2
+        # light_intensity 평균
+        light_intensity_low = controls_data['light_intensity']['from']
+        light_intensity_high = controls_data['light_intensity']['to']
+        light_intensity_avg = (light_intensity_low + light_intensity_high) / 2
+
+        return jsonify({"result": "sended", "set_temperature": temp_avg, "set_humidity": humidity_avg, "set_light_intensity": light_intensity_avg, "set_soil_moisture": soil_moisture_avg, "set_start_light": controls_data['light_time']['from'], "set_end_light": controls_data['light_time']['to']})
 
 # POST_Setting(프론트엔드에서 환경변수 설정값 설정하기)
 # @app.route('/control_settings', methods=['POST'])
