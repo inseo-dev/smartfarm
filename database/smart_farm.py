@@ -30,6 +30,7 @@ print(f"[디버깅] RTSP URL: {rtsp_url}")
 # S3 클라이언트
 s3 = boto3.client(
     's3',
+    region_name='ap-northeast-2',  # 예: 서울 리전
     aws_access_key_id=aws_access_key_id,
     aws_secret_access_key=aws_secret_access_key
 )
@@ -62,28 +63,28 @@ while True:
             image_url = s3.generate_presigned_url(
                 'get_object',
                 Params={'Bucket': bucket_name, 'Key': filename},
-                ExpiresIn=3600
+                ExpiresIn=3600 * 24
             )
             print(f"S3 업로드 성공: {image_url}")
 
-            # DB 연결 및 저장
-            conn = pymysql.connect(
-                host=db_host,
-                user=db_user,
-                password=db_password,
-                database=db_name,
-                charset='utf8mb4'
-            )
-            with conn.cursor() as cursor:
-                sql = """
-                INSERT INTO ai_diagnosis (timestamp, result, recommendations, controls, image_url)
-                VALUES (NOW(), '', '', '{}', %s)
-                """
-                cursor.execute(sql, (image_url,))
-                conn.commit()
-                print("DB에 이미지 URL 저장 완료")
+            # # DB 연결 및 저장
+            # conn = pymysql.connect(
+            #     host=db_host,
+            #     user=db_user,
+            #     password=db_password,
+            #     database=db_name,
+            #     charset='utf8mb4'
+            # )
+            # with conn.cursor() as cursor:
+            #     sql = """
+            #     INSERT INTO ai_diagnosis (timestamp, result, recommendations, controls, image_url)
+            #     VALUES (NOW(), '', '', '{}', %s)
+            #     """
+            #     cursor.execute(sql, (image_url,))
+            #     conn.commit()
+            #     print("DB에 이미지 URL 저장 완료")
 
-            conn.close()
+            # conn.close()
 
         except Exception as e:
             print(f"오류 발생: {e}")
