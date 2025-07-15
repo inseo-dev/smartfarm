@@ -24,6 +24,8 @@ db_name = os.getenv('DB_NAME')
 
 # RTSP 주소
 rtsp_url = f'rtsp://{username}:{password}@{ip_address}:554/stream1'
+print(f"[디버깅] RTSP URL: {rtsp_url}")
+
 
 # S3 클라이언트
 s3 = boto3.client(
@@ -54,8 +56,14 @@ while True:
                     'CacheControl': 'no-cache, no-store, must-revalidate'  # 캐시 방지
                 }
             )
-            # 항상 고정된 URL (쿼리스트링 없음!)
-            image_url = f"https://{bucket_name}.s3.amazonaws.com/{filename}"
+            # 항상 고정된 URL (쿼리스트링 없음)
+            # image_url = f"https://{bucket_name}.s3.amazonaws.com/{filename}"
+            # Presigned URL 생성 (1시간 유효)
+            image_url = s3.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': bucket_name, 'Key': filename},
+                ExpiresIn=3600
+            )
             print(f"S3 업로드 성공: {image_url}")
 
             # DB 연결 및 저장
