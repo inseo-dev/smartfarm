@@ -136,6 +136,7 @@ function Graphs() {
                 value: "토양수분",
                 position: "insideTopLeft",
                 offset: 0,
+                dy: -20,
               }}
             />
             <Tooltip />
