@@ -79,10 +79,10 @@ def get_sensor_data():
     soil_moisture_dict = {}
 
     dict_list = [temp_dict, light_intensity_dict, humidity_dict, soil_moisture_dict]
+    cnt = 0
 
     sensor_type = ['temp', 'light_intensity', 'humidity', 'soil_moisture']
     for i in sensor_type:
-        cnt = 0
         with conn.cursor() as cursor:
             sql = """SELECT 
                         DATE_FORMAT(timestamp, '%%Y-%%m-%%d %%H:%%i:00') AS minute,  -- 타임스탬프를 '분' 단위로 자름
