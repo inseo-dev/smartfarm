@@ -15,16 +15,8 @@ import React, { useEffect, useState } from "react";
 function Graphs() {
   const [sensorData, setSensorData] = useState(null);
   const [error, setError] = useState(null);
-  const tempData = [
-    { 시간: "10:00", 온도: 25 },
-    { 시간: "11:00", 온도: 26 },
-    { 시간: "12:00", 온도: 27 },
-  ]; // 시간대별 온도
-  const humiData = [
-    { 시간: "10:00", 습도: 55 },
-    { 시간: "11:00", 습도: 60 },
-    { 시간: "12:00", 습도: 62 },
-  ]; // 습도
+
+  // 조도
   const lux = 13000;
 
   useEffect(() => {
@@ -42,6 +34,28 @@ function Graphs() {
         setError("서버 연결에 실패했습니다.");
       });
   }, []);
+
+  // 시간대별 온도
+  const tempData = sensorData
+    ? Object.entries(sensorData.data.temp).map(([time, value]) => ({
+        시간: time.slice(11, 16),
+        온도: value,
+      }))
+    : [];
+  // 시간대별 습도
+  const humiData = sensorData
+    ? Object.entries(sensorData.data.humidity).map(([time, value]) => ({
+        시간: time.slice(11, 16),
+        습도: value,
+      }))
+    : [];
+  // 시간대별 토양수분
+  const soilData = sensorData
+    ? Object.entries(sensorData.data.soil_moisture).map(([time, value]) => ({
+        시간: time.slice(11, 16),
+        토양수분: value,
+      }))
+    : [];
 
   return (
     <div className="flex justify-center">
@@ -101,7 +115,33 @@ function Graphs() {
             <Line type="monotone" dataKey="습도" stroke="#82ca9d" />
           </LineChart>
         </div>
-
+        <div>
+          <h3 className="text-2xl font-bold">토양 수분</h3>
+          <LineChart width={250} height={150} data={soilData}>
+            <CartesianGrid
+              vertical={false}
+              stroke="#ccc"
+              strokeDasharray="3 3"
+            />
+            <XAxis
+              dataKey="시간"
+              label={{
+                value: "시간",
+                position: "insideBottomRight",
+                offset: -5,
+              }}
+            />
+            <YAxis
+              label={{
+                value: "토양수분",
+                position: "insideTopLeft",
+                offset: 0,
+              }}
+            />
+            <Tooltip />
+            <Line type="monotone" dataKey="토양수분" stroke="#82ca9d" />
+          </LineChart>
+        </div>
         <div>
           <h3 className="text-2xl font-bold">조도</h3>
           <PieChart width={200} height={200}>
@@ -121,20 +161,6 @@ function Graphs() {
           </PieChart>
           <p className="text-center mt-2 text-lg font-bold">{lux} lux</p>
         </div>
-      </div>
-      <div>
-        <h3>센서 정보(벡엔드에서 가져온 정보 연습)</h3>
-        {error && <p style={{ color: "red" }}>{error}</p>}
-        {sensorData ? (
-          <div>
-            <p>디바이스 ID: {sensorData.device_id}</p>
-            <p>센서 종류: {sensorData.sensor_type}</p>
-            <p>센서 값: {sensorData.sensor_value}</p>
-            <p>시간: {sensorData.timestamp}</p>
-          </div>
-        ) : (
-          <p>센서 데이터를 불러오는 중...</p>
-        )}
       </div>
     </div>
   );
