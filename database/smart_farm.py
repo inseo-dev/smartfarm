@@ -330,13 +330,22 @@ while True:
     ret, frame = cap.read()
 
     if ret:
-        filename = f"frame_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg"
+        # 고정된 파일 이름
+        filename = "latest_frame.jpg"
         cv2.imwrite(filename, frame)
         print(f"이미지 저장 완료: {filename}")
 
         try:
-            # S3 업로드
-            s3.upload_file(filename, bucket_name, filename)
+            # S3 업로드 (기존 이미지 덮어쓰기 & 캐시 방지 설정)
+            s3.upload_file(
+                filename,
+                bucket_name,
+                filename,
+                ExtraArgs={
+                    'CacheControl': 'no-cache, no-store, must-revalidate'  # 캐시 방지
+                }
+            )
+            # 항상 고정된 URL (쿼리스트링 없음!)
             image_url = f"https://{bucket_name}.s3.amazonaws.com/{filename}"
             print(f"S3 업로드 성공: {image_url}")
 
@@ -358,14 +367,15 @@ while True:
                 print("DB에 이미지 URL 저장 완료")
 
             conn.close()
+
         except Exception as e:
             print(f"오류 발생: {e}")
 
-        # 파일 정리 (옵션)
+        # 파일 정리 (원한다면 삭제)
         # os.remove(filename)
 
     else:
         print("카메라 연결 실패 또는 프레임 캡처 실패")
 
     cap.release()
-    time.sleep(10)
+    time.sleep(100)  # 100초 대기 후 반복
