@@ -37,7 +37,7 @@ function Graphs() {
     axios
       .get("http://43.200.35.210:5000/ai_diagnosis")
       .then((response) => {
-        if (response.data.diagnosis_id === 17) {
+        if (response.data.status == "Send Success!!") {
           setAiData(response.data);
         } else {
           setError("데이터를 가져오지 못했습니다.");
