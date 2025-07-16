@@ -130,6 +130,13 @@ def arduino_get_settings():
 
         controls_data = json.loads(rows[0]['controls'])
 
+        # validate json
+        keys = ['temp', 'humidity', 'soil_moisture', 'light_intensity', 'light_time']
+        for key in keys:
+            if key not in controls_data:
+                 return jsonify({"result": "failed", "set_temperature": None, "set_humidity": None, "set_light_intensity": None, "set_soil_moisture": None, "set_start_light": None, "set_end_light": None })
+
+
         # temp 평균
         temp_low = controls_data['temp']['from']
         temp_high = controls_data['temp']['to']
