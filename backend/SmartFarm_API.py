@@ -24,16 +24,6 @@ def get_connection():
         cursorclass=pymysql.cursors.DictCursor
     )
 
-# def get_connection():
-#     return pymysql.connect(
-#         host='localhost',
-#         user='root',
-#         db='test_smartfarm',
-#         password='gmdtm457^^',
-#         charset='utf8mb4',
-#         cursorclass=pymysql.cursors.DictCursor
-#     )
-
 app = Flask(__name__)
 # 프론트엔드 모든 요청 허용
 CORS(app)
@@ -103,10 +93,10 @@ def get_sensor_data():
 
             cnt += 1
             
-    return { "result": "sended", "data": {"temp": dict_list[0],
+    return jsonify({ "result": "sended", "data": {"temp": dict_list[0],
                                             "light_intensity": dict_list[1],
                                             "humidity": dict_list[2],
-                                            "soil_moisture": dict_list[3]}}
+                                            "soil_moisture": dict_list[3]}})
 
 # 프론트엔드로 AI 정보 테이블 보내기
 @app.route('/ai_diagnosis')
@@ -123,7 +113,7 @@ def get_ai_info():
 
         # print(rows[0]['diagnosis_id'])
 
-        return jsonify({"diagnosis_id": rows[0]['diagnosis_id'], "plant_name": rows[0]['plant_name'], "timestamp": rows[0]['timestamp'], "result": rows[0]['result'], "recommendations": rows[0]['recommendations'], "controls": rows[0]['controls'], "image_url": rows[0]['image_url']})
+        return jsonify({"status": "Send Success!!", "diagnosis_id": rows[0]['diagnosis_id'], "plant_name": rows[0]['plant_name'], "timestamp": rows[0]['timestamp'], "result": rows[0]['result'], "recommendations": rows[0]['recommendations'], "controls": json.loads(rows[0]['controls']), "image_url": rows[0]['image_url']})
 
 # GET_Setting(아두이노로 환경변수 설정값 보내기)
 @app.route('/control_settings')
