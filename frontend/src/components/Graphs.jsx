@@ -186,8 +186,8 @@ function Graphs() {
             <Tooltip />
             <Line type="monotone" dataKey="온도" stroke="#8884d8" />
             <ReferenceArea
-              y1={aiData.controls.temp.from}
-              y2={aiData.controls.temp.to}
+              y1={aiData.controls["온도"].from}
+              y2={aiData.controls["온도"].to}
               strokeOpacity={0.3}
               fill="#a48eea"
               fillOpacity={0.7}
@@ -231,8 +231,8 @@ function Graphs() {
             <Tooltip />
             <Line type="monotone" dataKey="습도" stroke="#82ca9d" />
             <ReferenceArea
-              y1={aiData.controls.humidity.from}
-              y2={aiData.controls.humidity.to}
+              y1={aiData.controls["습도"].from}
+              y2={aiData.controls["습도"].to}
               strokeOpacity={0.3}
               fill="#a48eea"
               fillOpacity={0.7}
@@ -273,10 +273,10 @@ function Graphs() {
               }}
             />
             <Tooltip />
-            <Line type="monotone" dataKey="토양수분" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="토양 습도" stroke="#82ca9d" />
             <ReferenceArea
-              y1={aiData.controls.soil_moisture.from}
-              y2={aiData.controls.soil_moisture.to}
+              y1={aiData.controls["토양 습도"].from}
+              y2={aiData.controls["토양 습도"].to}
               strokeOpacity={0.3}
               fill="#a48eea"
               fillOpacity={0.7}
