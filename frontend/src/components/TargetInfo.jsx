@@ -2,15 +2,15 @@ import axios from "axios";
 import React, { useEffect, useState } from "react";
 
 function TargetInfo() {
-  const [sensorData, setSensorData] = useState(null);
+  const [aiData, setAiData] = useState(null);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     axios
-      .get("http://43.200.35.210:5000/sensor_data")
+      .get("http://43.200.35.210:5000/ai_diagnosis")
       .then((response) => {
-        if (response.data.result === "sended") {
-          setSensorData(response.data);
+        if (response.data.diagnosis_id === 17) {
+          setAiData(response.data);
         } else {
           setError("데이터를 가져오지 못했습니다.");
         }
@@ -21,31 +21,53 @@ function TargetInfo() {
       });
   }, []);
 
+  if (!aiData) {
+    return <p>데이터 로딩 중...</p>;
+  }
+
   return (
     <div className="text-left">
       <h2 className="inline-block bg-gray-400 p-1 rounded border border-gray-400 text-left text-white mb-1">
         권장 재배 환경
       </h2>
-      <div className="flex justify-between mb-2 bg-white p-2 rounded border border-black text-2xl font-bold text-center">
+      <div className="grid grid-cols-3 gap-5 mb-6 bg-white p-2 rounded border border-black text-2xl font-bold text-center">
         <p>
-          목표 온도
+          권장 온도
           <br />
-          <span className="font-normal">18~20도</span>
+          <span className="font-normal">
+            {aiData.controls.temp.from}~{aiData.controls.temp.to}도
+          </span>
         </p>
         <p>
-          목표 습도
+          권장 습도
           <br />
-          <span className="font-normal">50~60%</span>
+          <span className="font-normal">
+            {aiData.controls.humidity.from}~{aiData.controls.humidity.to}%
+          </span>
         </p>
         <p>
-          목표 조도
+          권장 토양 수분량
           <br />
-          <span className="font-normal">10,000~15,000 lux</span>
+          <span className="font-normal">
+            {aiData.controls.soil_moisture.from}~
+            {aiData.controls.soil_moisture.to}%
+          </span>
         </p>
         <p>
-          목표 일조량 시간(1일 기준)
+          권장 조도
           <br />
-          <span className="font-normal">12~16시간</span>
+          <span className="font-normal">
+            {aiData.controls.light_intensity.from}~
+            {aiData.controls.light_intensity.to} lux
+          </span>
+        </p>
+        <p className="whitespace-nowrap">
+          권장 일조량 시간(1일 기준)
+          <br />
+          <span className="font-normal">
+            {aiData.controls.light_time.from}~{aiData.controls.light_time.to}
+            시간
+          </span>
         </p>
       </div>
 
@@ -53,10 +75,7 @@ function TargetInfo() {
         AI 분석
       </h2>
       <div className="bg-white p-2 rounded border border-black">
-        물결 모양의 잎이 중앙으로 오므라들며 결구가 시작된 상태로, 짙은 녹색을
-        띠고 생장이 균형 있게 진행 중입니다.&nbsp;
-        <strong>병해나 이상 증상 없이 건강한 생장</strong>
-        상태를 유지하고 있습니다.
+        {aiData.result}
       </div>
     </div>
   );
