@@ -6,7 +6,7 @@ import DeviceStatus from "./DeviceStatus";
 function ParentComponent() {
   return (
     <div className="flex flex-col items-center w-full gap-8">
-      <div className="flex justify-center items-start gap-12">
+      <div className="flex justify-center items-start gap-12 min-w-[400px]">
         <PlantImage />
         <TargetInfo />
       </div>
