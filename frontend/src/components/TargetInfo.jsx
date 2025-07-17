@@ -35,37 +35,37 @@ function TargetInfo() {
           권장 온도
           <br />
           <span className="font-normal">
-            {aiData.controls["온도"].from}~{aiData.controls["온도"].to}도
+            {aiData.controls.temp.from}~{aiData.controls.temp.to}도
           </span>
         </p>
         <p>
           권장 습도
           <br />
           <span className="font-normal">
-            {aiData.controls["습도"].from}~{aiData.controls["습도"].to}%
+            {aiData.controls.humidity.from}~{aiData.controls.humidity.to}%
           </span>
         </p>
         <p>
           권장 토양 습도
           <br />
           <span className="font-normal">
-            {aiData.controls["토양 습도"].from}~
-            {aiData.controls["토양 습도"].to}%
+            {aiData.controls.soil_moisture.from}~
+            {aiData.controls.soil_moisture.to}%
           </span>
         </p>
         <p>
           권장 조도
           <br />
           <span className="font-normal">
-            {aiData.controls["조도"].from}~{aiData.controls["조도"].to} lux
+            {aiData.controls.light_intensity.from}~
+            {aiData.controls.light_intensity.to} lux
           </span>
         </p>
         <p className="whitespace-nowrap">
           권장 일조 시간(1일 기준)
           <br />
           <span className="font-normal">
-            {aiData.controls["일조 시간"].from}~
-            {aiData.controls["일조 시간"].to}
+            {aiData.controls.light_time.from}~{aiData.controls.light_time.to}
             시간
           </span>
         </p>

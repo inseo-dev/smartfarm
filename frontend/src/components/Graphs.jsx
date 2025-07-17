@@ -48,14 +48,14 @@ function Graphs() {
         setError("서버 연결에 실패했습니다.");
       });
   }, []);
-  /*
+
   const tempData = sensorData
     ? Object.entries(sensorData.data.temp).map(([time, value]) => ({
         시간: time.slice(11, 16),
         온도: value,
       }))
     : [];
-    */
+  /*
   const tempData = [
     { 시간: "10:00", 온도: 15 },
     { 시간: "10:01", 온도: 18 },
@@ -63,6 +63,7 @@ function Graphs() {
     { 시간: "10:03", 온도: 28 },
     { 시간: "10:04", 온도: 30 },
   ];
+  */
   // 시간대별 습도
   const humiData = sensorData
     ? Object.entries(sensorData.data.humidity).map(([time, value]) => ({
@@ -74,7 +75,7 @@ function Graphs() {
   const soilData = sensorData
     ? Object.entries(sensorData.data.soil_moisture).map(([time, value]) => ({
         시간: time.slice(11, 16),
-        토양수분: value,
+        토양습도: value,
       }))
     : [];
   //시간대별 일조 시간
@@ -186,8 +187,8 @@ function Graphs() {
             <Tooltip />
             <Line type="monotone" dataKey="온도" stroke="#8884d8" />
             <ReferenceArea
-              y1={aiData.controls["온도"].from}
-              y2={aiData.controls["온도"].to}
+              y1={aiData.controls.temp.from}
+              y2={aiData.controls.temp.to}
               strokeOpacity={0.3}
               fill="#a48eea"
               fillOpacity={0.7}
@@ -221,6 +222,7 @@ function Graphs() {
               }}
             />
             <YAxis
+              domain={[0, 100]}
               label={{
                 value: "습도",
                 position: "insideTopLeft",
@@ -231,8 +233,8 @@ function Graphs() {
             <Tooltip />
             <Line type="monotone" dataKey="습도" stroke="#82ca9d" />
             <ReferenceArea
-              y1={aiData.controls["습도"].from}
-              y2={aiData.controls["습도"].to}
+              y1={aiData.controls.humidity.from}
+              y2={aiData.controls.humidity.to}
               strokeOpacity={0.3}
               fill="#a48eea"
               fillOpacity={0.7}
@@ -241,10 +243,10 @@ function Graphs() {
         </div>
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
-            <span className="text-sm font-bold">목표 토양 수분량</span>
+            <span className="text-sm font-bold">목표 토양 습도</span>
             <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
           </div>
-          <h3 className="text-2xl font-bold mb-4 pl-10">토양 수분량</h3>
+          <h3 className="text-2xl font-bold mb-4 pl-10">토양 습도</h3>
           <LineChart
             width={300}
             height={200}
@@ -265,18 +267,19 @@ function Graphs() {
               }}
             />
             <YAxis
+              domain={[0, 100]}
               label={{
-                value: "토양수분",
+                value: "토양습도",
                 position: "insideTopLeft",
                 offset: 0,
                 dy: -20,
               }}
             />
             <Tooltip />
-            <Line type="monotone" dataKey="토양 습도" stroke="#82ca9d" />
+            <Line type="monotone" dataKey="토양습도" stroke="#82ca9d" />
             <ReferenceArea
-              y1={aiData.controls["토양 습도"].from}
-              y2={aiData.controls["토양 습도"].to}
+              y1={aiData.controls.soil_moisture.from}
+              y2={aiData.controls.soil_moisture.to}
               strokeOpacity={0.3}
               fill="#a48eea"
               fillOpacity={0.7}
