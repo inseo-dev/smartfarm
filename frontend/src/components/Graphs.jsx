@@ -137,51 +137,53 @@ function Graphs() {
   }
 
   return (
-    <div className="flex justify-center">
-      <div className="w-full max-w-screen-xl grid grid-cols-4 gap-4 ">
+    <div className="w-full px-4">
+      <div className="w-full max-w-screen-xl grid grid-cols-2 gap-6 ">
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
             <span className="text-sm font-bold">목표 온도</span>
             <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
           </div>
           <h3 className="text-2xl font-bold  mb-4 pl-10">온도</h3>
-          <LineChart
-            width={350}
-            height={280}
-            data={tempData}
-            margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
-          >
-            <CartesianGrid
-              vertical={false}
-              stroke="#ccc"
-              strokeDasharray="3 3"
-            />
-            <XAxis
-              dataKey="시간"
-              label={{
-                value: "시간",
-                position: "insideBottomRight",
-                offset: -5,
-              }}
-            />
-            <YAxis
-              label={{
-                value: "온도",
-                position: "insideTopLeft",
-                offset: 0,
-                dy: -20,
-              }}
-            />
-            <Tooltip />
-            <Line type="monotone" dataKey="온도" stroke="#8884d8" />
-            <ReferenceArea
-              y1={aiData.controls.temp.from}
-              y2={aiData.controls.temp.to}
-              strokeOpacity={0.3}
-              fill="#a48eea"
-              fillOpacity={0.7}
-            />
-          </LineChart>
+          <div className="flex flex-col items-center">
+            <LineChart
+              width={450}
+              height={300}
+              data={tempData}
+              margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                stroke="#ccc"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="시간"
+                label={{
+                  value: "시간",
+                  position: "insideBottomRight",
+                  offset: -5,
+                }}
+              />
+              <YAxis
+                label={{
+                  value: "온도",
+                  position: "insideTopLeft",
+                  offset: 0,
+                  dy: -20,
+                }}
+              />
+              <Tooltip />
+              <Line type="monotone" dataKey="온도" stroke="#8884d8" />
+              <ReferenceArea
+                y1={aiData.controls.temp.from}
+                y2={aiData.controls.temp.to}
+                strokeOpacity={0.3}
+                fill="#a48eea"
+                fillOpacity={0.7}
+              />
+            </LineChart>
+          </div>
         </div>
 
         <div>
@@ -190,44 +192,46 @@ function Graphs() {
             <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
           </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">습도</h3>
-          <LineChart
-            width={350}
-            height={280}
-            data={humiData}
-            margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
-          >
-            <CartesianGrid
-              vertical={false}
-              stroke="#ccc"
-              strokeDasharray="3 3"
-            />
-            <XAxis
-              dataKey="시간"
-              label={{
-                value: "시간",
-                position: "insideBottomRight",
-                offset: -5,
-              }}
-            />
-            <YAxis
-              domain={[0, 100]}
-              label={{
-                value: "습도",
-                position: "insideTopLeft",
-                offset: 0,
-                dy: -20,
-              }}
-            />
-            <Tooltip />
-            <Line type="monotone" dataKey="습도" stroke="#82ca9d" />
-            <ReferenceArea
-              y1={aiData.controls.humidity.from}
-              y2={aiData.controls.humidity.to}
-              strokeOpacity={0.3}
-              fill="#a48eea"
-              fillOpacity={0.7}
-            />
-          </LineChart>
+          <div className="flex flex-col items-center">
+            <LineChart
+              width={450}
+              height={300}
+              data={humiData}
+              margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                stroke="#ccc"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="시간"
+                label={{
+                  value: "시간",
+                  position: "insideBottomRight",
+                  offset: -5,
+                }}
+              />
+              <YAxis
+                domain={[0, 100]}
+                label={{
+                  value: "습도",
+                  position: "insideTopLeft",
+                  offset: 0,
+                  dy: -20,
+                }}
+              />
+              <Tooltip />
+              <Line type="monotone" dataKey="습도" stroke="#82ca9d" />
+              <ReferenceArea
+                y1={aiData.controls.humidity.from}
+                y2={aiData.controls.humidity.to}
+                strokeOpacity={0.3}
+                fill="#a48eea"
+                fillOpacity={0.7}
+              />
+            </LineChart>
+          </div>
         </div>
 
         <div>
@@ -236,44 +240,46 @@ function Graphs() {
             <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
           </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">토양 습도</h3>
-          <LineChart
-            width={350}
-            height={280}
-            data={soilData}
-            margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
-          >
-            <CartesianGrid
-              vertical={false}
-              stroke="#ccc"
-              strokeDasharray="3 3"
-            />
-            <XAxis
-              dataKey="시간"
-              label={{
-                value: "시간",
-                position: "insideBottomRight",
-                offset: -5,
-              }}
-            />
-            <YAxis
-              domain={[0, 100]}
-              label={{
-                value: "토양습도",
-                position: "insideTopLeft",
-                offset: 0,
-                dy: -20,
-              }}
-            />
-            <Tooltip />
-            <Line type="monotone" dataKey="토양습도" stroke="#82ca9d" />
-            <ReferenceArea
-              y1={aiData.controls.soil_moisture.from}
-              y2={aiData.controls.soil_moisture.to}
-              strokeOpacity={0.3}
-              fill="#a48eea"
-              fillOpacity={0.7}
-            />
-          </LineChart>
+          <div className="flex flex-col items-center">
+            <LineChart
+              width={450}
+              height={300}
+              data={soilData}
+              margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
+            >
+              <CartesianGrid
+                vertical={false}
+                stroke="#ccc"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="시간"
+                label={{
+                  value: "시간",
+                  position: "insideBottomRight",
+                  offset: -5,
+                }}
+              />
+              <YAxis
+                domain={[0, 100]}
+                label={{
+                  value: "토양습도",
+                  position: "insideTopLeft",
+                  offset: 0,
+                  dy: -20,
+                }}
+              />
+              <Tooltip />
+              <Line type="monotone" dataKey="토양습도" stroke="#82ca9d" />
+              <ReferenceArea
+                y1={aiData.controls.soil_moisture.from}
+                y2={aiData.controls.soil_moisture.to}
+                strokeOpacity={0.3}
+                fill="#a48eea"
+                fillOpacity={0.7}
+              />
+            </LineChart>
+          </div>
         </div>
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
