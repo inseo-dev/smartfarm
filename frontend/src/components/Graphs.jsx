@@ -281,62 +281,43 @@ function Graphs() {
             </LineChart>
           </div>
         </div>
+
         <div>
-          <div className="flex items-center gap-2 pl-10 mb-2">
-            <span className="text-sm font-bold">일조 시간</span>
-            <div className="w-12 h-4 bg-[#eaff6e] rounded-sm"></div>
-          </div>
+          <h3 className="text-2xl font-bold mb-4 pl-10">
+            <br></br>조도
+          </h3>
           <div className="flex flex-col items-center">
-            <h3 className="text-2xl font-bold mb-4 ">조도 및 일조 시간</h3>
-            <PieChart
-              width={300}
+            <LineChart
+              width={450}
               height={300}
+              data={lightData}
               margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
             >
-              <Pie
-                data={lightPieData}
-                dataKey="value"
-                cx="50%"
-                cy="50%"
-                innerRadius={30}
-                outerRadius={100}
-                startAngle={90}
-                endAngle={-270}
-              >
-                {lightPieData.map((entry, index) => (
-                  <Cell
-                    key={`cell-${index}`}
-                    fill={entry.isSunlight ? "#eaff6e" : "#ccc"}
-                  />
-                ))}
-              </Pie>
-              {lightPieData.map((entry, index) => {
-                if (![0, 6, 12, 18].includes(index)) return null; // 4시간만 표시
-
-                const angle = ((360 / 24) * index - 90) * (Math.PI / 180);
-                const radius = 120;
-                const x = 150 + radius * Math.cos(angle);
-                const y = 150 + radius * Math.sin(angle);
-
-                return (
-                  <text
-                    key={`label-${index}`}
-                    x={x}
-                    y={y}
-                    textAnchor="middle"
-                    dominantBaseline="middle"
-                    fontSize={14}
-                    fill="#333"
-                    fontWeight="bold"
-                  >
-                    {entry.name.slice(0, 2)}
-                  </text>
-                );
-              })}
-            </PieChart>
-            <p className="text-center mt-2 text-lg font-bold">
-              평균 조도 : {lux} lux
-            </p>
+              <CartesianGrid
+                vertical={false}
+                stroke="#ccc"
+                strokeDasharray="3 3"
+              />
+              <XAxis
+                dataKey="시간"
+                label={{
+                  value: "시간",
+                  position: "insideBottomRight",
+                  offset: -5,
+                }}
+              />
+              <YAxis
+                domain={[0, 100]}
+                label={{
+                  value: "조도",
+                  position: "insideTopLeft",
+                  offset: 0,
+                  dy: -20,
+                }}
+              />
+              <Tooltip />
+              <Line type="monotone" dataKey="조도" stroke="#82ca9d" />
+            </LineChart>
           </div>
         </div>
       </div>
