@@ -7,7 +7,7 @@ function PlantImage() {
 
   useEffect(() => {
     axios
-      .get("http://aismartfarm.duckdns.org/api/ai_diagnosis")
+      .get("https://aismartfarm.duckdns.org/api/ai_diagnosis")
       .then((response) => {
         if (response.data.status == "Send Success!!") {
           setAiData(response.data);
