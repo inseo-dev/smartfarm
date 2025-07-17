@@ -20,33 +20,43 @@ function Graphs() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    axios
-      .get("https://aismartfarm.duckdns.org/api/sensor_data")
-      .then((response) => {
-        if (response.data.result === "sended") {
-          setSensorData(response.data);
-        } else {
-          setError("데이터를 가져오지 못했습니다.");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("서버 연결에 실패했습니다.");
-      });
+    const fetchData = () => {
+      axios
+        .get("https://aismartfarm.duckdns.org/api/sensor_data")
+        .then((response) => {
+          if (response.data.result === "sended") {
+            setSensorData(response.data);
+          } else {
+            setError("데이터를 가져오지 못했습니다.");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("서버 연결에 실패했습니다.");
+        });
 
-    axios
-      .get("https://aismartfarm.duckdns.org/api/ai_diagnosis")
-      .then((response) => {
-        if (response.data.status == "Send Success!!") {
-          setAiData(response.data);
-        } else {
-          setError("데이터를 가져오지 못했습니다.");
-        }
-      })
-      .catch((err) => {
-        console.error(err);
-        setError("서버 연결에 실패했습니다.");
-      });
+      axios
+        .get("https://aismartfarm.duckdns.org/api/ai_diagnosis")
+        .then((response) => {
+          if (response.data.status == "Send Success!!") {
+            setAiData(response.data);
+          } else {
+            setError("데이터를 가져오지 못했습니다.");
+          }
+        })
+        .catch((err) => {
+          console.error(err);
+          setError("서버 연결에 실패했습니다.");
+        });
+    };
+
+    // 페이지 로드시 최초 1회 데이터 가져오기
+    fetchData();
+
+    // 이후 5초마다 fetchData 반복 실행
+    const interval = setInterval(fetchData, 5000); // 5000ms = 5초
+
+    return () => clearInterval(interval);
   }, []);
 
   const tempData = sensorData
@@ -105,44 +115,16 @@ function Graphs() {
     { 시간: "22:00", 조도: 0 },
     { 시간: "23:00", 조도: 0 },
   ];
-  const sunlightHours = lightData.filter((d) => d.조도 > 0).length; // 태양 떠 있는 시간
 
   // 조도
   const lux = 1200;
 
-  // 파이 차트에 시간 추가
-  const renderCustomizedLabel = ({
-    cx,
-    cy,
-    midAngle,
-    innerRadius,
-    outerRadius,
-    percent,
-    index,
-  }) => {
-    const RADIAN = Math.PI / 180;
-    // 파이 조각의 중심에서 라벨 위치 계산
-    const radius = innerRadius + (outerRadius - innerRadius) * 1.1;
-    const x = cx + radius * Math.cos(-midAngle * RADIAN);
-    const y = cy + radius * Math.sin(-midAngle * RADIAN);
-
-    // index가 0이면 빛 나는 시간 끝 (ex: 05), 1이면 빛 없는 시간 끝 (ex: 18)
-    const labels = ["05", "18"];
-
-    return (
-      <text
-        x={x}
-        y={y}
-        fill="#333"
-        textAnchor={x > cx ? "start" : "end"}
-        dominantBaseline="central"
-        fontSize={12}
-        fontWeight="bold"
-      >
-        {labels[index]}
-      </text>
-    );
-  };
+  // 조도 차트 시간 나타내기위해 사용
+  const lightPieData = lightData.map((d) => ({
+    name: d.시간,
+    value: 1, // 모든 시간의 비율을 동일하게 설정 (24조각)
+    isSunlight: d.조도 > 0,
+  }));
 
   if (!aiData) {
     return <p>데이터 로딩 중...</p>;
@@ -294,23 +276,50 @@ function Graphs() {
           <div className="flex flex-col items-center">
             <h3 className="text-2xl font-bold mb-4 ">조도 및 일조 시간</h3>
             <PieChart
-              width={200}
-              height={200}
+              width={300}
+              height={300}
               margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
             >
               <Pie
-                data={[
-                  { name: "lux", value: sunlightHours },
-                  { name: "remain", value: 24 - sunlightHours },
-                ]}
+                data={lightPieData}
                 dataKey="value"
-                outerRadius={80}
-                fill="#8884d8"
-                label={renderCustomizedLabel}
+                cx="50%"
+                cy="50%"
+                innerRadius={30}
+                outerRadius={100}
+                startAngle={90}
+                endAngle={-270}
               >
-                <Cell fill="#eaff6e" />
-                <Cell fill="#ccc" />
+                {lightPieData.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={entry.isSunlight ? "#eaff6e" : "#ccc"}
+                  />
+                ))}
               </Pie>
+              {lightPieData.map((entry, index) => {
+                if (![0, 6, 12, 18].includes(index)) return null; // 4시간만 표시
+
+                const angle = ((360 / 24) * index - 90) * (Math.PI / 180);
+                const radius = 120;
+                const x = 150 + radius * Math.cos(angle);
+                const y = 150 + radius * Math.sin(angle);
+
+                return (
+                  <text
+                    key={`label-${index}`}
+                    x={x}
+                    y={y}
+                    textAnchor="middle"
+                    dominantBaseline="middle"
+                    fontSize={14}
+                    fill="#333"
+                    fontWeight="bold"
+                  >
+                    {entry.name.slice(0, 2)}
+                  </text>
+                );
+              })}
             </PieChart>
             <p className="text-center mt-2 text-lg font-bold">{lux} lux</p>
           </div>
