@@ -7,7 +7,7 @@ function TargetInfo() {
 
   useEffect(() => {
     axios
-      .get("http://43.200.35.210:5000/ai_diagnosis")
+      .get("http://aismartfarm.duckdns.org/api/ai_diagnosis")
       .then((response) => {
         if (response.data.status == "Send Success!!") {
           setAiData(response.data);

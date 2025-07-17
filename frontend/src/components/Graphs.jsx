@@ -21,7 +21,7 @@ function Graphs() {
 
   useEffect(() => {
     axios
-      .get("http://43.200.35.210:5000/sensor_data")
+      .get("http://aismartfarm.duckdns.org/api/sensor_data")
       .then((response) => {
         if (response.data.result === "sended") {
           setSensorData(response.data);
@@ -35,7 +35,7 @@ function Graphs() {
       });
 
     axios
-      .get("http://43.200.35.210:5000/ai_diagnosis")
+      .get("http://aismartfarm.duckdns.org/api/ai_diagnosis")
       .then((response) => {
         if (response.data.status == "Send Success!!") {
           setAiData(response.data);
