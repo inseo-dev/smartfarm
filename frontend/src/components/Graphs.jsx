@@ -1,4 +1,6 @@
 import {
+  AreaChart,
+  Area,
   LineChart,
   Line,
   XAxis,
@@ -116,8 +118,12 @@ function Graphs() {
     { 시간: "23:00", 조도: 0 },
   ];
 
-  // 조도
-  const lux = 1200;
+  const sunlightData = lightData.filter((entry) => entry.조도 > 0);
+
+  // 평균 조도
+  const lux =
+    sunlightData.reduce((sum, entry) => sum + entry.조도, 0) /
+      sunlightData.length || 0;
 
   // 조도 차트 시간 나타내기위해 사용
   const lightPieData = lightData.map((d) => ({
@@ -140,8 +146,8 @@ function Graphs() {
           </div>
           <h3 className="text-2xl font-bold  mb-4 pl-10">온도</h3>
           <LineChart
-            width={300}
-            height={200}
+            width={350}
+            height={280}
             data={tempData}
             margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
           >
@@ -185,8 +191,8 @@ function Graphs() {
           </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">습도</h3>
           <LineChart
-            width={300}
-            height={200}
+            width={350}
+            height={280}
             data={humiData}
             margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
           >
@@ -223,6 +229,7 @@ function Graphs() {
             />
           </LineChart>
         </div>
+
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
             <span className="text-sm font-bold">목표 토양 습도</span>
@@ -230,8 +237,8 @@ function Graphs() {
           </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">토양 습도</h3>
           <LineChart
-            width={300}
-            height={200}
+            width={350}
+            height={280}
             data={soilData}
             margin={{ top: 30, right: 20, bottom: 20, left: 40 }}
           >
@@ -321,7 +328,9 @@ function Graphs() {
                 );
               })}
             </PieChart>
-            <p className="text-center mt-2 text-lg font-bold">{lux} lux</p>
+            <p className="text-center mt-2 text-lg font-bold">
+              평균 조도 : {lux} lux
+            </p>
           </div>
         </div>
       </div>
