@@ -101,7 +101,7 @@ function Graphs() {
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
             <span className="text-sm font-bold">목표 온도</span>
-            <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
+            <div className="w-12 h-4 bg-[#a48eea]/30 rounded-sm"></div>
           </div>
           <h3 className="text-2xl font-bold  mb-4 pl-10">온도</h3>
           <div className="flex flex-col items-center">
@@ -139,7 +139,7 @@ function Graphs() {
                 y2={aiData.controls.temp.to}
                 strokeOpacity={0.3}
                 fill="#a48eea"
-                fillOpacity={0.7}
+                fillOpacity={0.3}
               />
             </LineChart>
           </div>
@@ -148,7 +148,7 @@ function Graphs() {
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
             <span className="text-sm font-bold">목표 습도</span>
-            <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
+            <div className="w-12 h-4 bg-[#a48eea]/30 rounded-sm"></div>
           </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">습도</h3>
           <div className="flex flex-col items-center">
@@ -187,7 +187,7 @@ function Graphs() {
                 y2={aiData.controls.humidity.to}
                 strokeOpacity={0.3}
                 fill="#a48eea"
-                fillOpacity={0.7}
+                fillOpacity={0.3}
               />
             </LineChart>
           </div>
@@ -196,7 +196,7 @@ function Graphs() {
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
             <span className="text-sm font-bold">목표 토양 습도</span>
-            <div className="w-12 h-4 bg-[#a48eea]/70 rounded-sm"></div>
+            <div className="w-12 h-4 bg-[#a48eea]/30 rounded-sm"></div>
           </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">토양 습도</h3>
           <div className="flex flex-col items-center">
@@ -235,7 +235,7 @@ function Graphs() {
                 y2={aiData.controls.soil_moisture.to}
                 strokeOpacity={0.3}
                 fill="#a48eea"
-                fillOpacity={0.7}
+                fillOpacity={0.3}
               />
             </LineChart>
           </div>
