@@ -61,21 +61,14 @@ function Graphs() {
     return () => clearInterval(interval);
   }, []);
 
+  // 시간대별 온도
   const tempData = sensorData
     ? Object.entries(sensorData.data.temp).map(([time, value]) => ({
         시간: time.slice(11, 16),
         온도: value,
       }))
     : [];
-  /*
-  const tempData = [
-    { 시간: "10:00", 온도: 15 },
-    { 시간: "10:01", 온도: 18 },
-    { 시간: "10:02", 온도: 23 },
-    { 시간: "10:03", 온도: 28 },
-    { 시간: "10:04", 온도: 30 },
-  ];
-  */
+
   // 시간대별 습도
   const humiData = sensorData
     ? Object.entries(sensorData.data.humidity).map(([time, value]) => ({
@@ -91,46 +84,12 @@ function Graphs() {
       }))
     : [];
   //시간대별 일조 시간
-  const lightData = [
-    { 시간: "00:00", 조도: 0 },
-    { 시간: "01:00", 조도: 0 },
-    { 시간: "02:00", 조도: 0 },
-    { 시간: "03:00", 조도: 0 },
-    { 시간: "04:00", 조도: 0 },
-    { 시간: "05:00", 조도: 1200 },
-    { 시간: "06:00", 조도: 1200 },
-    { 시간: "07:00", 조도: 1200 },
-    { 시간: "08:00", 조도: 1200 },
-    { 시간: "09:00", 조도: 1200 },
-    { 시간: "10:00", 조도: 1200 },
-    { 시간: "11:00", 조도: 1200 },
-    { 시간: "12:00", 조도: 1200 },
-    { 시간: "13:00", 조도: 1200 },
-    { 시간: "14:00", 조도: 1200 },
-    { 시간: "15:00", 조도: 1200 },
-    { 시간: "16:00", 조도: 1200 },
-    { 시간: "17:00", 조도: 1200 },
-    { 시간: "18:00", 조도: 1200 },
-    { 시간: "19:00", 조도: 0 },
-    { 시간: "20:00", 조도: 0 },
-    { 시간: "21:00", 조도: 0 },
-    { 시간: "22:00", 조도: 0 },
-    { 시간: "23:00", 조도: 0 },
-  ];
-
-  const sunlightData = lightData.filter((entry) => entry.조도 > 0);
-
-  // 평균 조도
-  const lux =
-    sunlightData.reduce((sum, entry) => sum + entry.조도, 0) /
-      sunlightData.length || 0;
-
-  // 조도 차트 시간 나타내기위해 사용
-  const lightPieData = lightData.map((d) => ({
-    name: d.시간,
-    value: 1, // 모든 시간의 비율을 동일하게 설정 (24조각)
-    isSunlight: d.조도 > 0,
-  }));
+  const lightData = sensorData
+    ? Object.entries(sensorData.data.light_intensity).map(([time, value]) => ({
+        시간: time.slice(11, 16),
+        조도: value,
+      }))
+    : [];
 
   if (!aiData) {
     return <p>데이터 로딩 중...</p>;
