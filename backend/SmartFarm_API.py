@@ -4,6 +4,16 @@ import pymysql
 import json
 from flask_cors import CORS
 
+# llm 연동
+import threading
+from llm import plant_analyzer
+diagnosis_delay = 5
+def start_diagnosis():
+    print('start ai diagnosis')
+    plant_analyzer.run_plant_diagnosis()
+    return
+
+
 # 가정 AI 라이브러리 파일
 # from ai_model_lib import AIModel
 
@@ -196,11 +206,12 @@ def get_current_time():
     return jsonify({"result": "sended", "set_time": time_string})
 
 # 재배 품종 변경 시, AI 호출하기
-# @app.route('/ai_call')
-# def call_ai():
-#     if ai_instance is None:
-#         return jsonify({"return": "failed", "reason": "AI model not loaded"})
+@app.route('/ai_call')
+def call_ai():
 
-#     return jsonify({"result": "called", "predict": ai_instance})
+    print(f'ai diagnosis start after {diagnosis_delay}')
+    timer = threading.Timer(diagnosis_delay, start_diagnosis)
+    timer.start()
+    return jsonify({})
 
 app.run(debug=True, host='0.0.0.0', port=5000)
