@@ -71,11 +71,11 @@ function TargetInfo() {
           </span>
         </p>
         <p className="whitespace-nowrap">
-          권장 일조 시간(1일 기준)
+          권장 일조 시간
           <br />
           <span className="font-normal">
-            {aiData.controls.light_time.from}~{aiData.controls.light_time.to}
-            시간
+            {aiData.controls.light_time.from}시 ~{" "}
+            {aiData.controls.light_time.to}시
           </span>
         </p>
       </div>
