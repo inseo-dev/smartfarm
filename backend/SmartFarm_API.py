@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, Response, jsonify
 from datetime import datetime, timezone, timedelta
 import pymysql
 import json
@@ -193,7 +193,11 @@ def get_current_time():
     # 전달 가능한 형식으로 변환
     time_string = current_time_kst.isoformat()
 
-    return jsonify({"result": "sended", "set_time": time_string})
+    json_str = json.dumps({"result": "sended", "set_time": time_string})
+
+    return Response(json_str, 200,
+                    mimetype="application/json",
+                    headers={"Content-Length": str(len(json_str))})
 
 # 재배 품종 변경 시, AI 호출하기
 # @app.route('/ai_call')
