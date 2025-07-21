@@ -34,10 +34,12 @@ int currentSecond = 0;
 unsigned long previousMillis = 0;
 unsigned long lightTimer = 0;
 unsigned long tempTimer = 0;
-bool lightState = false;
+unsigned long targetSetTimer = 0;
+bool lightState = true;
 const unsigned long interval = 1000; // 1초 간격
-const unsigned long light_interval = 1800000UL; // 30분 간격
+const unsigned long light_interval = 15000; // 10초 간격
 const unsigned long temp_interval = 10000;
+const unsigned long set_interval = 60000;
 
 // wifi setting
 int WIFI_RX = 6;
@@ -261,4 +263,11 @@ void loop() {
       digitalWrite(heater1, LOW); // 히터 켜기
     }
   }
+
+  if(currentMillis - targetSetTimer >= set_interval){
+    targetSetTimer = currentMillis;
+
+    getTargetSettings();
+  }
+  delay(1000);
 }
