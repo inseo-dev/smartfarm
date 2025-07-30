@@ -242,6 +242,10 @@ function Graphs() {
         </div>
 
         <div>
+          <div className="flex items-center gap-2 pl-10 mb-2">
+            <span className="text-sm font-bold">목표 조도</span>
+            <div className="w-12 h-4 bg-[#a48eea]/30 rounded-sm"></div>
+          </div>
           <h3 className="text-2xl font-bold mb-4 pl-10">
             <br></br>조도
           </h3>
@@ -276,6 +280,13 @@ function Graphs() {
               />
               <Tooltip />
               <Line type="monotone" dataKey="조도" stroke="#82ca9d" />
+              <ReferenceArea
+                y1={aiData.controls.light_intensity.from}
+                y2={aiData.controls.light_intensity.to}
+                strokeOpacity={0.3}
+                fill="#a48eea"
+                fillOpacity={0.3}
+              />
             </LineChart>
           </div>
         </div>
