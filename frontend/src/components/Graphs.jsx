@@ -125,6 +125,7 @@ function Graphs() {
                 }}
               />
               <YAxis
+                domain={[0, aiData.controls.temp.to + 10]}
                 label={{
                   value: "온도",
                   position: "insideTopLeft",
@@ -270,7 +271,7 @@ function Graphs() {
                 }}
               />
               <YAxis
-                domain={[0, 2000]}
+                domain={[0, aiData.controls.light_intensity.to]}
                 label={{
                   value: "조도",
                   position: "insideTopLeft",
