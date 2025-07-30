@@ -270,7 +270,7 @@ function Graphs() {
                 }}
               />
               <YAxis
-                domain={[0, 100]}
+                domain={[0, 2000]}
                 label={{
                   value: "조도",
                   position: "insideTopLeft",
