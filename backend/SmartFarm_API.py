@@ -30,10 +30,14 @@ CORS(app)
 # 아두이노에서 DB로 센서 값(Status) 보내기
 @app.route('/sensor_data', methods=['POST'])
 def sensor_data_input():
+
     data = request.get_json()
 
     device_id = data['device_id']
     sensor_data = data['sensor_data']
+
+
+    print(data)
 
     if((device_id is None) or (sensor_data is None)):
         return jsonify({"result": "failed", "reason": "There are no required fields."})
@@ -55,11 +59,18 @@ def sensor_data_input():
         cursor.execute(sql)
         rows = cursor.fetchall()
 
+        print(rows)
+
         return jsonify({"result": "Success", "timestamp": rows[0]['timestamp']})
 
 # 프론트엔드로 Status 값 보내기
-@app.route('/sensor_data')
+@app.route('/sensor_data', methods=['GET'])
 def get_sensor_data():
+
+    # 집계 방식 가져오기
+    # default = minute
+    agg = request.args.get('agg', 'minute')
+
     conn = get_connection()
 
     temp_dict = {}
@@ -73,20 +84,31 @@ def get_sensor_data():
     sensor_type = ['temp', 'light_intensity', 'humidity', 'soil_moisture']
     for i in sensor_type:
         with conn.cursor() as cursor:
-            sql = """SELECT 
-                        DATE_FORMAT(timestamp, '%%Y-%%m-%%d %%H:%%i:00') AS minute,  -- 타임스탬프를 '분' 단위로 자름
-                        round(AVG(sensor_value), 2) AS avg_value                          -- 해당 분의 평균값 계산
-                    FROM sensor_data
-                    WHERE sensor_type = %s                         -- 센서 타입 필터링
-                        AND timestamp >= NOW() - INTERVAL 1 HOUR                -- 최근 1시간 데이터만 선택
-                    GROUP BY minute                                           -- '분 단위'로 그룹화
-                    ORDER BY minute DESC                                      -- 최근 분부터 정렬
-                    LIMIT 60;"""
+            if agg == 'minute':
+                sql = """SELECT 
+                            DATE_FORMAT(timestamp, '%%Y-%%m-%%d %%H:%%i:00') AS ts_agg,  -- 타임스탬프를 '분' 단위로 자름
+                            round(AVG(sensor_value), 2) AS avg_value                          -- 해당 분의 평균값 계산
+                        FROM sensor_data
+                        WHERE sensor_type = %s                         -- 센서 타입 필터링
+                            AND timestamp >= NOW() - INTERVAL 1 HOUR                -- 최근 1시간 데이터만 선택
+                        GROUP BY ts_agg                                         -- '분 단위'로 그룹화
+                        ORDER BY ts_agg DESC                                      -- 최근 분부터 정렬
+                        LIMIT 60;"""
+            else:
+                sql = """SELECT 
+                            DATE_FORMAT(timestamp, '%%Y-%%m-%%d %%H:00:00') AS ts_agg,  -- 타임스탬프를 '시간' 단위로 자름
+                            round(AVG(sensor_value), 2) AS avg_value                          -- 해당 시간의 평균값 계산
+                        FROM sensor_data
+                        WHERE sensor_type = %s                         -- 센서 타입 필터링
+                            AND timestamp >= NOW() - INTERVAL 60 HOUR                -- 최근 60시간 데이터만 선택
+                        GROUP BY ts_agg                                         -- '시간 단위'로 그룹화
+                        ORDER BY ts_agg DESC                                      -- 최근 분부터 정렬
+                        LIMIT 60;"""
             cursor.execute(sql, (i, ))
             rows = cursor.fetchall()
 
             for row in rows:
-                ts = row["minute"]
+                ts = row["ts_agg"]
                 value = row['avg_value']
                 dict_list[cnt][ts] = value
 
