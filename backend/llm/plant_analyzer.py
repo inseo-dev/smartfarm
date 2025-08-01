@@ -112,7 +112,10 @@ def identify_plant(image_path):
     plant_name = extract_plant_name(plant_name_raw)
     return plant_name
 
-def generate_growth_recommendation(plant_name, env):
+def generate_growth_recommendation(plant_name, env, image_path): 
+    with open(image_path, "rb") as f:
+        base64_image = base64.b64encode(f.read()).decode("utf-8")
+
     prompt = f"""
 너는 스마트팜을 관리하는 식물학 전문가 AI이다.
 
@@ -125,13 +128,13 @@ def generate_growth_recommendation(plant_name, env):
 - 토양 습도: {env['soil_moisture']}%
 
 아래 형식에 맞춰 출력하라:
+- light_time은 하루 중 조명을 켜야 하는 실제 시간대이며, 단순한 시간 길이가 아닌 "몇 시부터 몇 시까지"로 판단하여 작성할 것
 
-1. 식물 정보 및 권장 재배 환경 요약  
+식물 정보 및 권장 재배 환경 요약  
    - 생장 단계 (한국어 단계명 + 영어 단계명 + 설명 bullet point)
    - 발육 상태 (색상, 형태, 병충해, 결구 진행 상태)
    - 권장 재배 환경 요약
 
-2. 권장 재배 환경 (JSON 형식)
 ```json
 {{
   "temp": {{ "from": x, "to": x }},
@@ -140,10 +143,19 @@ def generate_growth_recommendation(plant_name, env):
   "light_intensity": {{ "from": x, "to": x }},
   "soil_moisture": {{ "from": x, "to": x }}
 }}
-"""
+""".strip()
+
     response = client.chat.completions.create(
         model="gpt-4o",
-        messages=[{"role": "user", "content": prompt}]
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": prompt},
+                    {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64_image}"}}
+                ]
+            }
+        ]
     )
     return response.choices[0].message.content.strip()
 
@@ -185,7 +197,7 @@ def run_plant_diagnosis(s3_object_key: str = "latest_frame.jpg") -> Optional[Dic
     env = get_latest_environment()
     print("✅ 현재 환경 데이터:", env)
 
-    gpt_response = generate_growth_recommendation(plant_name, env)
+    gpt_response = generate_growth_recommendation(plant_name, env, resized_image)
     print("✅ GPT 권장 재배 환경 응답:\n", gpt_response)
 
     try:
