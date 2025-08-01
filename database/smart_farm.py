@@ -5,6 +5,7 @@ import time
 import pymysql
 from datetime import datetime
 from dotenv import load_dotenv
+from PIL import Image, ImageEnhance
 
 # ====== .env 파일 로드 ======
 load_dotenv()
@@ -20,6 +21,20 @@ db_host = os.getenv('DB_HOST')
 db_user = os.getenv('DB_USER')
 db_password = os.getenv('DB_PASSWORD')
 db_name = os.getenv('DB_NAME')
+
+# 촬영 주기 (sec)
+period = 5
+
+def crop_resize_brighten(input_path, output_path, size=(512, 512), brightness_factor=1.3):
+    img = Image.open(input_path).convert("RGB")
+    w, h = img.size
+    crop_size = min(w, h)
+    left = (w - crop_size) // 2
+    top = (h - crop_size) // 2
+    cropped = img.crop((left, top, left+crop_size, top+crop_size))
+    resized = cropped.resize(size, resample=Image.LANCZOS)
+    bright = ImageEnhance.Brightness(resized).enhance(brightness_factor)
+    bright.save(output_path)
 
 # RTSP URL 생성
 rtsp_url = f'rtsp://{username}:{password}@{ip_address}:554/stream1'
@@ -67,6 +82,10 @@ while True:
         cv2.imwrite(filename, frame)
         print(f"이미지 저장 완료: {filename}")
 
+        # resize
+        crop_resize_brighten(filename, filename)
+
+
         try:
             # S3 업로드
             s3.upload_file(
@@ -77,12 +96,13 @@ while True:
                     'CacheControl': 'no-cache, no-store, must-revalidate'
                 }
             )
-            image_url = s3.generate_presigned_url(
-                'get_object',
-                Params={'Bucket': bucket_name, 'Key': filename},
-                ExpiresIn=3600 * 24
-            )
-            print(f"S3 업로드 성공: {image_url}")
+            #image_url = s3.generate_presigned_url(
+            #    'get_object',
+            #    Params={'Bucket': bucket_name, 'Key': filename},
+            #    ExpiresIn=3600 * 24
+            #)
+            #print(f"S3 업로드 성공: {image_url}")
+            print(f"S3 업로드 성공: {bucket_name}/{filename}")
 
         except Exception as e:
             print(f"[오류] S3 업로드 또는 DB 저장 실패: {e}")
@@ -93,4 +113,4 @@ while True:
     else:
         print("[실패] 모든 시도에서 프레임 캡처 실패. 다음 주기까지 대기")
 
-    time.sleep(10)  # 다음 촬영까지 대기
+    time.sleep(period)  # 다음 촬영까지 대기
