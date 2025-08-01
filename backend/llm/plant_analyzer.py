@@ -126,12 +126,11 @@ def generate_growth_recommendation(plant_name, env):
 
 아래 형식에 맞춰 출력하라:
 
-1. 식물 정보 및 권장 재배 환경 요약  
+식물 정보 및 권장 재배 환경 요약  
    - 생장 단계 (한국어 단계명 + 영어 단계명 + 설명 bullet point)
    - 발육 상태 (색상, 형태, 병충해, 결구 진행 상태)
    - 권장 재배 환경 요약
 
-2. 권장 재배 환경 (JSON 형식)
 ```json
 {{
   "temp": {{ "from": x, "to": x }},
@@ -165,6 +164,16 @@ def insert_into_ai_diagnosis(plant_name, result, controls_json, image_url):
         ))
         db.commit()
     db.close()
+'''
+def clean_summary_text(summary: str) -> str:
+    lines = summary.strip().splitlines()
+    cleaned = []
+    for line in lines:
+        if re.match(r"^\s*\d+\.\s", line):  # "1. ", "2. " 등 제거
+            continue
+        cleaned.append(line.strip())
+    return "\n".join(cleaned).strip()
+    '''
 
 def run_plant_diagnosis(s3_object_key: str = "latest_frame.jpg") -> Optional[Dict]:
     downloaded_image = "downloaded_image.jpg"
@@ -196,6 +205,7 @@ def run_plant_diagnosis(s3_object_key: str = "latest_frame.jpg") -> Optional[Dic
         controls_json = {}
 
     result_section = gpt_response.split("```json")[0].strip()
+    #result_summary = clean_summary_text(result_section)
 
     image_url = s3.generate_presigned_url(
         'get_object',
