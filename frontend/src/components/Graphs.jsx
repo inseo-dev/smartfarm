@@ -125,6 +125,7 @@ function Graphs() {
                 }}
               />
               <YAxis
+                domain={[0, aiData.controls.temp.to + 10]}
                 label={{
                   value: "온도",
                   position: "insideTopLeft",
@@ -242,9 +243,11 @@ function Graphs() {
         </div>
 
         <div>
-          <h3 className="text-2xl font-bold mb-4 pl-10">
-            <br></br>조도
-          </h3>
+          <div className="flex items-center gap-2 pl-10 mb-2">
+            <span className="text-sm font-bold">목표 조도</span>
+            <div className="w-12 h-4 bg-[#a48eea]/30 rounded-sm"></div>
+          </div>
+          <h3 className="text-2xl font-bold mb-4 pl-10">조도</h3>
           <div className="flex flex-col items-center">
             <LineChart
               width={450}
@@ -266,7 +269,7 @@ function Graphs() {
                 }}
               />
               <YAxis
-                domain={[0, 100]}
+                domain={[0, aiData.controls.light_intensity.to]}
                 label={{
                   value: "조도",
                   position: "insideTopLeft",
@@ -276,6 +279,13 @@ function Graphs() {
               />
               <Tooltip />
               <Line type="monotone" dataKey="조도" stroke="#82ca9d" />
+              <ReferenceArea
+                y1={aiData.controls.light_intensity.from}
+                y2={aiData.controls.light_intensity.to}
+                strokeOpacity={0.3}
+                fill="#a48eea"
+                fillOpacity={0.3}
+              />
             </LineChart>
           </div>
         </div>
