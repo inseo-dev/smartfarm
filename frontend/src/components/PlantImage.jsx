@@ -39,7 +39,7 @@ function PlantImage() {
       <img
         src={aiData.image_url}
         alt="작물 사진"
-        className="w-[2500px] h-auto rounded-xl shadow-md"
+        className="w-[2500px] h-[2500px] rounded-xl shadow-md"
         onError={(e) => {
           e.target.src =
             "https://png.pngtree.com/png-vector/20190130/ourmid/pngtree-simple-potted-cartoon-illustration-design-plantflower-potillustrationai-material-png-image_591188.jpg";
