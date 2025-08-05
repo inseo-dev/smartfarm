@@ -9,7 +9,7 @@
 //  WiFi 및 서버 설정
 char ssid[] = "spreatics_eungam_cctv";
 char password[] = "spreatics*";
-char server[] = "43.200.35.210";
+char server[] = "13.209.245.226";
 int port = 5000;
 
 SoftwareSerial espSerial(2, 3); // RX, TX
@@ -20,7 +20,6 @@ HttpClient http(client, server, port);
 #define DHTPIN 4
 #define SOILPIN A0
 #define RELAY_PIN 7
-#define toggle 8
 #define MOTOR_IN1 12
 #define MOTOR_IN2 13
 #define MOTOR_EN 11
@@ -32,11 +31,11 @@ bool lastButtonState = LOW;
 DHT11 dht(DHTPIN);
 bool isWatering = false;
 unsigned long wateringStartTime = 0;
-const unsigned long wateringDuration = 10000;
+const unsigned long wateringDuration = 500;
 
 //  설정값 (기본값, 서버에서 갱신 예정)
 float set_humidity = 60.0; // 기본 습도 (%)
-float set_soil = 800;        // 기본 토양 습도 (analog)
+float set_soil = 50;        // 기본 토양 습도 (analog)
 
 //  초기 설정
 void setup() {
@@ -45,15 +44,13 @@ void setup() {
   WiFi.init(&espSerial);
   pinMode(LEDPIN, OUTPUT);
   digitalWrite(LEDPIN, LOW);
-  pinMode(toggle, OUTPUT);
+
   pinMode(RELAY_PIN, OUTPUT);
   pinMode(MOTOR_IN1, OUTPUT);
   pinMode(MOTOR_IN2, OUTPUT);
   pinMode(MOTOR_EN, OUTPUT);
   pinMode(BUTTONPIN, INPUT);
-
-  digitalWrite(toggle,HIGH);
-  digitalWrite(RELAY_PIN, HIGH);
+  digitalWrite(RELAY_PIN, LOW);
   analogWrite(MOTOR_EN, 0);
 
   Serial.print(" WiFi 연결 중...");
@@ -124,20 +121,16 @@ void getTargetSettings() {  http.get("/control_settings");
 void controlActuators(float humidity, int soil) {
   if (!isnan(humidity) && humidity < set_humidity) {
     Serial.println(" 가습기 ON");
-    digitalWrite(RELAY_PIN, LOW);
-    delay(50);
-    digitalWrite(toggle,LOW);
-    delay(5000);
     digitalWrite(RELAY_PIN, HIGH);
-    delay(50);
-    digitalWrite(toggle,HIGH);
+    delay(7000);
+    digitalWrite(RELAY_PIN, LOW);
   }
 
-  if (!isWatering && soil > set_soil) {
+  if (!isWatering && soil < set_soil) {
     Serial.println(" 급수 시작");
     digitalWrite(MOTOR_IN1, HIGH);
     digitalWrite(MOTOR_IN2, LOW);
-    analogWrite(MOTOR_EN, 100);
+    analogWrite(MOTOR_EN, 75);
     wateringStartTime = millis();
     isWatering = true;
   }
@@ -149,7 +142,7 @@ void handleWatering() {
     Serial.println(" 급수 종료");
     digitalWrite(MOTOR_IN1, LOW);
     digitalWrite(MOTOR_IN2, LOW);
-    analogWrite(MOTOR_EN, 0);
+    digitalWrite(MOTOR_EN, LOW);
     isWatering = false;
   }
 }
@@ -197,23 +190,24 @@ void loop() {
 
   getTargetSettings();
   float humidity = dht.readHumidity();
-  int soil = analogRead(SOILPIN);
+  int soilRaw = analogRead(SOILPIN);
+  int soilPercent = map(soilRaw, 1023, 0, 0, 100); 
 
   Serial.print(" 습도: "); Serial.print(humidity);
-  Serial.print(" /  토양: "); Serial.println(soil);
+  Serial.print(" /  토양: "); Serial.print(soilPercent); Serial.println("%");
 
-  controlActuators(humidity, soil);
+  controlActuators(humidity, soilPercent);
   handleWatering();
 
   sendStatus("humidity", (int)humidity);
-  sendStatus("soil_moisture", soil);
+  sendStatus("soil_moisture", soilPercent);
 
   digitalWrite(LEDPIN, HIGH);
   unsigned long startTime = millis();
   bool buttonHandled = false;
 
-  while (millis() - startTime < 10000) {
-
+  while (millis() - startTime < 5000) {
+    handleWatering();
     bool currentButtonState = digitalRead(BUTTONPIN);
     if (!buttonHandled && currentButtonState == HIGH && lastButtonState == LOW) {
       delay(20);  // 디바운싱
@@ -228,5 +222,7 @@ void loop() {
   }
 
   digitalWrite(LEDPIN, LOW);  // 시간 초과 시 LED OFF
+
+
 }
 
