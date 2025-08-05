@@ -19,39 +19,41 @@ import React, { useEffect, useState } from "react";
 function Graphs() {
   const [sensorData, setSensorData] = useState(null);
   const [aiData, setAiData] = useState(null);
+  const [agg, setAgg] = useState("minute");
   const [error, setError] = useState(null);
 
+  // 데이터 불러오는 함수
+  const fetchData = () => {
+    axios
+      .get(`https://aismartfarm.duckdns.org/api/sensor_data?agg=${agg}`)
+      .then((response) => {
+        if (response.data.result === "sended") {
+          setSensorData(response.data);
+        } else {
+          setError("데이터를 가져오지 못했습니다.");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("서버 연결에 실패했습니다.");
+      });
+
+    axios
+      .get("https://aismartfarm.duckdns.org/api/ai_diagnosis")
+      .then((response) => {
+        if (response.data.status == "Send Success!!") {
+          setAiData(response.data);
+        } else {
+          setError("데이터를 가져오지 못했습니다.");
+        }
+      })
+      .catch((err) => {
+        console.error(err);
+        setError("서버 연결에 실패했습니다.");
+      });
+  };
+
   useEffect(() => {
-    const fetchData = () => {
-      axios
-        .get("https://aismartfarm.duckdns.org/api/sensor_data")
-        .then((response) => {
-          if (response.data.result === "sended") {
-            setSensorData(response.data);
-          } else {
-            setError("데이터를 가져오지 못했습니다.");
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setError("서버 연결에 실패했습니다.");
-        });
-
-      axios
-        .get("https://aismartfarm.duckdns.org/api/ai_diagnosis")
-        .then((response) => {
-          if (response.data.status == "Send Success!!") {
-            setAiData(response.data);
-          } else {
-            setError("데이터를 가져오지 못했습니다.");
-          }
-        })
-        .catch((err) => {
-          console.error(err);
-          setError("서버 연결에 실패했습니다.");
-        });
-    };
-
     // 페이지 로드시 최초 1회 데이터 가져오기
     fetchData();
 
@@ -59,7 +61,7 @@ function Graphs() {
     const interval = setInterval(fetchData, 5000); // 5000ms = 5초
 
     return () => clearInterval(interval);
-  }, []);
+  }, [agg]); // 의존성에 agg추가
 
   // 시간대별 온도
   const tempData = sensorData
@@ -97,6 +99,27 @@ function Graphs() {
 
   return (
     <div className="w-full px-4">
+      {/* 버튼 영역*/}
+      <div className="flex justify-end mb-4 gap-4">
+        <button
+          className={`px-4 py-2 rounded-md ${
+            agg === "minute" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setAgg("minute")}
+        >
+          분 단위 보기
+        </button>
+        <button
+          className={`px-4 py-2 rounded-md ${
+            agg === "hour" ? "bg-blue-500 text-white" : "bg-gray-200"
+          }`}
+          onClick={() => setAgg("hour")}
+        >
+          시간 단위 보기
+        </button>
+      </div>
+
+      {/* 그래프 영역*/}
       <div className="w-full max-w-screen-xl grid grid-cols-2 gap-6 ">
         <div>
           <div className="flex items-center gap-2 pl-10 mb-2">
