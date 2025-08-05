@@ -45,7 +45,7 @@ SoftwareSerial espSerial(WIFI_TX, WIFI_RX); // RX, TX
 //int server_port = 5000;  // 내 flask web server 포트 번호
 WiFiEspClient client;
 //HttpClient http(client, server_ip, server_port);
-HttpClient http(client, "43.200.35.210", 5000);
+HttpClient http(client, "13.209.245.226", 5000);
 
 //  설정값 받아오기
 void getTargetSettings() { 
