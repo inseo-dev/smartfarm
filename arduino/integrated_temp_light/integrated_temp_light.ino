@@ -108,12 +108,9 @@ void getCurrentTime() {
   http.stop(); client.stop();
 }
 
-void setup() {
-  Serial.begin(9600);
-  espSerial.begin(9600);
-  WiFi.init(&espSerial);
+void connectWiFi() {
 
-  //Serial.println(F("WiFi 연결 중..."));
+  Serial.println(F("WiFi 연결 중..."));
   //WiFi.begin(ssid, password);
   WiFi.begin("spreatics_eungam_cctv", "spreatics*");
   delay(5000);
@@ -121,13 +118,18 @@ void setup() {
     delay(500);
   }
   
-  /*
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(F("WiFi 연결 성공"));
   } else {
     Serial.println(F("WiFi 연결 실패"));
   }
-  */
+}
+
+void setup() {
+  Serial.begin(9600);
+  espSerial.begin(9600);
+  WiFi.init(&espSerial);
+  connectWiFi();
 
   dht.begin(); //DHT 센서 초기화
   pinMode(light_bulb1, OUTPUT);
@@ -233,6 +235,11 @@ void ctrTemp() {
 void loop() {
 
   Serial.print("[loop]");
+
+  // Wifi 연결 확인
+  if (WiFi.status() != WL_CONNECTED)
+    connectWiFi();
+
   // 시간을 못받아온 경우 다시 시도
   if(startHour == -1) { 
     //Serial.println("[CT] retry");
