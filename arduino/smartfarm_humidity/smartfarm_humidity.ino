@@ -240,8 +240,8 @@ void sendStatus() {
 
 void callAI() {
   Serial.println("[CA]");
-  //http.get("/ai_call");
-  //http.stop(); client.stop();
+  http.get("/ai_call");
+  http.stop(); client.stop();
 }
 
 
