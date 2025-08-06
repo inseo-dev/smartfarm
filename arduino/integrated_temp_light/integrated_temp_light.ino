@@ -236,9 +236,12 @@ void loop() {
 
   Serial.print("[loop]");
 
+  //Serial.print(WiFi.status());
   // Wifi 연결 확인
-  if (WiFi.status() != WL_CONNECTED)
-    connectWiFi();
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi(); delay(1000);
+    return;
+  }
 
   // 시간을 못받아온 경우 다시 시도
   if(startHour == -1) { 
