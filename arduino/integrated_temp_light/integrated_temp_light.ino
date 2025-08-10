@@ -53,7 +53,7 @@ void getTargetSettings() {
   http.get("/control_settings");
   http.skipResponseHeaders();
 
-  StaticJsonDocument<1000> doc;
+  StaticJsonDocument<512> doc;
 
   // 스트림 파싱 시도
   deserializeJson(doc, http);
@@ -63,9 +63,6 @@ void getTargetSettings() {
   set_start_light = doc["set_start_light"] | set_start_light;
   set_end_light = doc["set_end_light"] | set_end_light;
 
-  //Serial.print(F("> 설정 온도: ")); Serial.println(set_temperature);
-  //Serial.print(F("> 설정 조명 시작시간: ")); Serial.println(set_start_light);
-  //Serial.print(F("> 설정 조명 종료시간: ")); Serial.println(set_end_light);
   Serial.print("[TS]");
   Serial.print(set_temperature); Serial.print("/");
   Serial.print(set_start_light); Serial.print("/");

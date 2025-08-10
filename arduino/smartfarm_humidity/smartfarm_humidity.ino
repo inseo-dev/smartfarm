@@ -78,12 +78,7 @@ void connectWiFi() {
   while(WiFi.status()!=WL_CONNECTED){
     delay(500);
   }
-  
-  if (WiFi.status() == WL_CONNECTED) {
-    Serial.println(F("WiFi 연결 성공"));
-  } else {
-    Serial.println(F("WiFi 연결 실패"));
-  }
+  Serial.println(F("WiFi 연결 성공"));
 }
 
 //  초기 설정
@@ -126,13 +121,46 @@ bool parseJson(String response, DynamicJsonDocument& doc) {
   }
   return true;
 }
-//  설정값 받아오기
+
 void getTargetSettings() { 
+
+  float set_temperature;
+  int set_start_light, set_end_light;
 
   http.get("/control_settings");
   http.skipResponseHeaders();
 
-  StaticJsonDocument<1000> doc;
+  StaticJsonDocument<512> doc;
+
+  // 스트림 파싱 시도
+  deserializeJson(doc, http);
+
+  // 파싱 성공 시 JSON 값 추출
+  set_temperature = doc["set_temperature"] | set_temperature;
+  set_start_light = doc["set_start_light"] | set_start_light;
+  set_end_light = doc["set_end_light"] | set_end_light;
+
+  Serial.print("[TS]");
+  Serial.print(set_temperature); Serial.print("/");
+  Serial.print(set_start_light); Serial.print("/");
+  Serial.println(set_end_light);
+
+  set_humidity = doc["set_humidity"] | set_humidity;
+  set_soil = doc["set_soil_moisture"] | set_soil;
+  Serial.print("[TS]"); Serial.print(set_humidity); 
+  Serial.print("/"); Serial.println(set_soil);
+
+  // 연결 정리
+  http.stop(); client.stop();
+}
+
+//  설정값 받아오기
+void _getTargetSettings() { 
+
+  http.get("/control_settings");
+  http.skipResponseHeaders();
+
+  StaticJsonDocument<512> doc;
 
   // 스트림 파싱 시도
   deserializeJson(doc, http);
@@ -141,11 +169,10 @@ void getTargetSettings() {
   set_humidity = doc["set_humidity"] | set_humidity;
   set_soil = doc["set_soil_moisture"] | set_soil;
 
-  Serial.print("[TS] ");
-  Serial.println(set_humidity); 
+  Serial.print("[TS] "); Serial.print(set_humidity); 
+  Serial.print("/"); Serial.println(set_soil);
 
-  // 연결 정리
-  http.stop(); client.stop();
+  http.stop(); client.stop(); 
 }
 
 void readSensor(int& humidity, int& soilPercent) {
@@ -209,6 +236,7 @@ void checkSoilOffTimer() {
 }
 
 void sendStatus() {
+
   StaticJsonDocument<150> doc;
   doc["device_id"] = 2;
 
@@ -230,11 +258,9 @@ void sendStatus() {
   http.beginBody();
   http.print(requestBody);
   http.endRequest();
-
   Serial.print("[SD]"); Serial.println(requestBody);
 
-  http.stop();
-  client.stop();
+  http.stop(); client.stop();
 }
 
 
@@ -263,11 +289,12 @@ void loop() {
     lastPrintTime = now;
   }
 
-  // 제어환경 못받아온 경우 즉시 다시 시도
+  /*
   if(set_humidity == -1.0) {
     getTargetSettings(); delay(1000);
     return;
   }
+  */
 
   // 1. target setting 가져오기 (제어 환경 주기인 1분마다 실행됨)
   if (checkTimer(ts_interval, ts_timer)) {
