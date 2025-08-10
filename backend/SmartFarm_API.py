@@ -221,12 +221,12 @@ def get_current_time():
                     headers={"Content-Length": str(len(json_str))})
 
 # 재배 품종 변경 시, AI 호출하기
-# @app.route('/ai_call')
-# def call_ai():
+@app.route('/ai_call')
+def call_ai():
 
-#     print(f'ai diagnosis start after {diagnosis_delay}')
-#     timer = threading.Timer(diagnosis_delay, start_diagnosis)
-#     timer.start()
-#     return jsonify({})
+    print(f'ai diagnosis start after {diagnosis_delay}')
+    timer = threading.Timer(diagnosis_delay, start_diagnosis)
+    timer.start()
+    return jsonify({})
 
 app.run(debug=True, host='0.0.0.0', port=5000)
