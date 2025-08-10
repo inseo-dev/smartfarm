@@ -5,13 +5,13 @@ import json
 from flask_cors import CORS
 
 # llm 연동
-# import threading
-# from llm import plant_analyzer
-# diagnosis_delay = 5
-# def start_diagnosis():
-#     print('start ai diagnosis')
-#     plant_analyzer.run_plant_diagnosis()
-#     return
+import threading
+from llm import plant_analyzer
+diagnosis_delay = 5
+def start_diagnosis():
+     print('start ai diagnosis')
+     plant_analyzer.run_plant_diagnosis()
+     return
 
 def get_connection():
     return pymysql.connect(
