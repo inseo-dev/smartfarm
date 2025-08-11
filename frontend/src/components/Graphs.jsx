@@ -66,7 +66,7 @@ function Graphs() {
   // 시간대별 온도
   const tempData = sensorData
     ? Object.entries(sensorData.data.temp).map(([time, value]) => ({
-        시간: time.slice(11, 16),
+        시간: time,
         온도: value,
       }))
     : [];
@@ -74,21 +74,21 @@ function Graphs() {
   // 시간대별 습도
   const humiData = sensorData
     ? Object.entries(sensorData.data.humidity).map(([time, value]) => ({
-        시간: time.slice(11, 16),
+        시간: time,
         습도: value,
       }))
     : [];
   // 시간대별 토양수분
   const soilData = sensorData
     ? Object.entries(sensorData.data.soil_moisture).map(([time, value]) => ({
-        시간: time.slice(11, 16),
+        시간: time,
         토양습도: value,
       }))
     : [];
   //시간대별 일조 시간
   const lightData = sensorData
     ? Object.entries(sensorData.data.light_intensity).map(([time, value]) => ({
-        시간: time.slice(11, 16),
+        시간: time,
         조도: value,
       }))
     : [];
@@ -141,6 +141,7 @@ function Graphs() {
               />
               <XAxis
                 dataKey="시간"
+                tickFormatter={(str) => str.slice(11, 16)}
                 label={{
                   value: "시간",
                   position: "insideBottomRight",
@@ -189,6 +190,7 @@ function Graphs() {
               />
               <XAxis
                 dataKey="시간"
+                tickFormatter={(str) => str.slice(11, 16)}
                 label={{
                   value: "시간",
                   position: "insideBottomRight",
@@ -237,6 +239,7 @@ function Graphs() {
               />
               <XAxis
                 dataKey="시간"
+                tickFormatter={(str) => str.slice(11, 16)}
                 label={{
                   value: "시간",
                   position: "insideBottomRight",
@@ -285,6 +288,7 @@ function Graphs() {
               />
               <XAxis
                 dataKey="시간"
+                tickFormatter={(str) => str.slice(11, 16)}
                 label={{
                   value: "시간",
                   position: "insideBottomRight",
