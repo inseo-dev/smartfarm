@@ -35,7 +35,7 @@ function TargetInfo() {
   }
 
   return (
-    <div className="text-left">
+    <div className="text-left w-full">
       <h2 className="inline-block bg-gray-400 p-1 rounded border border-gray-400 text-left text-white mb-1">
         권장 재배 환경
       </h2>
@@ -83,7 +83,7 @@ function TargetInfo() {
       <h2 className="inline-block bg-gray-400 p-1 rounded border border-gray-400 text-left text-white mb-1">
         AI 분석
       </h2>
-      <div className="bg-white p-2 rounded border border-black">
+      <div className="bg-white p-2 rounded border border-black whitespace-pre-line">
         {aiData.result}
       </div>
     </div>
