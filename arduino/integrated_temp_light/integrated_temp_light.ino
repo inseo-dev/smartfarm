@@ -45,7 +45,7 @@ SoftwareSerial espSerial(WIFI_TX, WIFI_RX); // RX, TX
 //int server_port = 5000;  // 내 flask web server 포트 번호
 WiFiEspClient client;
 //HttpClient http(client, server_ip, server_port);
-HttpClient http(client, "43.200.35.210", 5000);
+HttpClient http(client, "13.209.245.226", 5000);
 
 //  설정값 받아오기
 void getTargetSettings() { 
@@ -53,7 +53,7 @@ void getTargetSettings() {
   http.get("/control_settings");
   http.skipResponseHeaders();
 
-  StaticJsonDocument<1000> doc;
+  StaticJsonDocument<512> doc;
 
   // 스트림 파싱 시도
   deserializeJson(doc, http);
@@ -63,9 +63,6 @@ void getTargetSettings() {
   set_start_light = doc["set_start_light"] | set_start_light;
   set_end_light = doc["set_end_light"] | set_end_light;
 
-  //Serial.print(F("> 설정 온도: ")); Serial.println(set_temperature);
-  //Serial.print(F("> 설정 조명 시작시간: ")); Serial.println(set_start_light);
-  //Serial.print(F("> 설정 조명 종료시간: ")); Serial.println(set_end_light);
   Serial.print("[TS]");
   Serial.print(set_temperature); Serial.print("/");
   Serial.print(set_start_light); Serial.print("/");
@@ -108,12 +105,9 @@ void getCurrentTime() {
   http.stop(); client.stop();
 }
 
-void setup() {
-  Serial.begin(9600);
-  espSerial.begin(9600);
-  WiFi.init(&espSerial);
+void connectWiFi() {
 
-  //Serial.println(F("WiFi 연결 중..."));
+  Serial.println(F("WiFi 연결 중..."));
   //WiFi.begin(ssid, password);
   WiFi.begin("spreatics_eungam_cctv", "spreatics*");
   delay(5000);
@@ -121,13 +115,18 @@ void setup() {
     delay(500);
   }
   
-  /*
   if (WiFi.status() == WL_CONNECTED) {
     Serial.println(F("WiFi 연결 성공"));
   } else {
     Serial.println(F("WiFi 연결 실패"));
   }
-  */
+}
+
+void setup() {
+  Serial.begin(9600);
+  espSerial.begin(9600);
+  WiFi.init(&espSerial);
+  connectWiFi();
 
   dht.begin(); //DHT 센서 초기화
   pinMode(light_bulb1, OUTPUT);
@@ -233,6 +232,14 @@ void ctrTemp() {
 void loop() {
 
   Serial.print("[loop]");
+
+  //Serial.print(WiFi.status());
+  // Wifi 연결 확인
+  if (WiFi.status() != WL_CONNECTED) {
+    connectWiFi(); delay(1000);
+    return;
+  }
+
   // 시간을 못받아온 경우 다시 시도
   if(startHour == -1) { 
     //Serial.println("[CT] retry");

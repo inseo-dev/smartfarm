@@ -189,15 +189,17 @@ def run_plant_diagnosis(s3_object_key: str = "latest_frame.jpg") -> Optional[Dic
         print(f"❌ 이미지 다운로드 실패: {e}")
         return None
 
-    crop_resize_brighten(downloaded_image, resized_image, brightness_factor=1.3)
-
-    plant_name = identify_plant(resized_image)
+    # upload 시점에 사이즈를 줄여서 미리 올림
+    #crop_resize_brighten(downloaded_image, resized_image, brightness_factor=1.3)
+    #plant_name = identify_plant(resized_image)
+    plant_name = identify_plant(downloaded_image)
     print(f"✅ 추정된 식물이름: {plant_name}")
 
     env = get_latest_environment()
     print("✅ 현재 환경 데이터:", env)
 
-    gpt_response = generate_growth_recommendation(plant_name, env, resized_image)
+    #gpt_response = generate_growth_recommendation(plant_name, env, resized_image)
+    gpt_response = generate_growth_recommendation(plant_name, env, downloaded_image)
     print("✅ GPT 권장 재배 환경 응답:\n", gpt_response)
 
     try:
@@ -229,3 +231,6 @@ def run_plant_diagnosis(s3_object_key: str = "latest_frame.jpg") -> Optional[Dic
         "recommendation": gpt_response,
         "image_url": image_url
     }
+
+if __name__ == "__main__":
+    run_plant_diagnosis()
